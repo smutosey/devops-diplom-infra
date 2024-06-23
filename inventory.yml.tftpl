@@ -1,0 +1,34 @@
+---
+all:
+  children:
+    hosts_control:
+      hosts:
+%{ for i, node in control_planes ~}
+        ${i}:
+          ansible_host: ${node.external_ip_address}
+          ip: ${node.internal_ip_address}
+          access_ip: ${node.internal_ip_address}
+%{ endfor ~}
+    hosts_workers:
+      hosts:
+%{ for i, node in workers ~}
+        ${i}:
+          ansible_host: ${node.external_ip_address}
+          ip: ${node.internal_ip_address}
+          access_ip: ${node.internal_ip_address}
+%{ endfor ~}
+    kube_control_plane:
+      children:
+        hosts_control:
+    kube_node:
+      children:
+        hosts_workers:
+    etcd:
+      children:
+        hosts_control:
+    k8s_cluster:
+      children:
+        kube_control_plane:
+        kube_node:
+    calico_rr:
+      hosts: {}

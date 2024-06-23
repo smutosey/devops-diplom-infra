@@ -1,0 +1,240 @@
+nedorezov@GARRO:/mnt/e/netology-devops-diploma-terraform/prepare$ terraform apply --auto-approve
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # local_file.terraform_sa_keys will be created
+  + resource "local_file" "terraform_sa_keys" {
+      + content              = (sensitive value)
+      + content_base64sha256 = (known after apply)
+      + content_base64sha512 = (known after apply)
+      + content_md5          = (known after apply)
+      + content_sha1         = (known after apply)
+      + content_sha256       = (known after apply)
+      + content_sha512       = (known after apply)
+      + directory_permission = "0777"
+      + file_permission      = "0777"
+      + filename             = "../production/terraform_sa.key"
+      + id                   = (known after apply)
+    }
+
+  # null_resource.terraform_sa_iam will be created
+  + resource "null_resource" "terraform_sa_iam" {
+      + id = (known after apply)
+    }
+
+  # yandex_iam_service_account.terraform_sa will be created
+  + resource "yandex_iam_service_account" "terraform_sa" {
+      + created_at = (known after apply)
+      + folder_id  = (known after apply)
+      + id         = (known after apply)
+      + name       = "terraform-sa"
+    }
+
+  # yandex_iam_service_account_static_access_key.terraform_key will be created
+  + resource "yandex_iam_service_account_static_access_key" "terraform_key" {
+      + access_key           = (known after apply)
+      + created_at           = (known after apply)
+      + encrypted_secret_key = (known after apply)
+      + id                   = (known after apply)
+      + key_fingerprint      = (known after apply)
+      + secret_key           = (sensitive value)
+      + service_account_id   = (known after apply)
+    }
+
+  # yandex_kms_symmetric_key.encryption_key will be created
+  + resource "yandex_kms_symmetric_key" "encryption_key" {
+      + created_at          = (known after apply)
+      + default_algorithm   = "AES_256"
+      + deletion_protection = false
+      + description         = "Key for encrypting bucket objects"
+      + folder_id           = (known after apply)
+      + id                  = (known after apply)
+      + name                = "storage-encryption-key"
+      + rotated_at          = (known after apply)
+      + rotation_period     = "8760h"
+      + status              = (known after apply)
+    }
+
+  # yandex_resourcemanager_folder_iam_member.terraform_sa_compute will be created
+  + resource "yandex_resourcemanager_folder_iam_member" "terraform_sa_compute" {
+      + folder_id = "b1g36j4atdpik0n1fbjo"
+      + id        = (known after apply)
+      + member    = (known after apply)
+      + role      = "compute.editor"
+    }
+
+  # yandex_resourcemanager_folder_iam_member.terraform_sa_decrypter will be created
+  + resource "yandex_resourcemanager_folder_iam_member" "terraform_sa_decrypter" {
+      + folder_id = "b1g36j4atdpik0n1fbjo"
+      + id        = (known after apply)
+      + member    = (known after apply)
+      + role      = "kms.keys.decrypter"
+    }
+
+  # yandex_resourcemanager_folder_iam_member.terraform_sa_encrypter will be created
+  + resource "yandex_resourcemanager_folder_iam_member" "terraform_sa_encrypter" {
+      + folder_id = "b1g36j4atdpik0n1fbjo"
+      + id        = (known after apply)
+      + member    = (known after apply)
+      + role      = "kms.keys.encrypter"
+    }
+
+  # yandex_resourcemanager_folder_iam_member.terraform_sa_lb will be created
+  + resource "yandex_resourcemanager_folder_iam_member" "terraform_sa_lb" {
+      + folder_id = "b1g36j4atdpik0n1fbjo"
+      + id        = (known after apply)
+      + member    = (known after apply)
+      + role      = "load-balancer.admin"
+    }
+
+  # yandex_resourcemanager_folder_iam_member.terraform_sa_storage will be created
+  + resource "yandex_resourcemanager_folder_iam_member" "terraform_sa_storage" {
+      + folder_id = "b1g36j4atdpik0n1fbjo"
+      + id        = (known after apply)
+      + member    = (known after apply)
+      + role      = "storage.editor"
+    }
+
+  # yandex_resourcemanager_folder_iam_member.terraform_sa_ydb will be created
+  + resource "yandex_resourcemanager_folder_iam_member" "terraform_sa_ydb" {
+      + folder_id = "b1g36j4atdpik0n1fbjo"
+      + id        = (known after apply)
+      + member    = (known after apply)
+      + role      = "ydb.editor"
+    }
+
+  # yandex_storage_bucket.tf_state_bucket will be created
+  + resource "yandex_storage_bucket" "tf_state_bucket" {
+      + access_key            = (known after apply)
+      + bucket                = "nedorezov-tf-state-bucket"
+      + bucket_domain_name    = (known after apply)
+      + default_storage_class = (known after apply)
+      + folder_id             = (known after apply)
+      + force_destroy         = false
+      + id                    = (known after apply)
+      + secret_key            = (sensitive value)
+      + website_domain        = (known after apply)
+      + website_endpoint      = (known after apply)
+
+      + server_side_encryption_configuration {
+          + rule {
+              + apply_server_side_encryption_by_default {
+                  + kms_master_key_id = (known after apply)
+                  + sse_algorithm     = "aws:kms"
+                }
+            }
+        }
+    }
+
+  # yandex_ydb_database_serverless.db_tf_state_lock will be created
+  + resource "yandex_ydb_database_serverless" "db_tf_state_lock" {
+      + created_at            = (known after apply)
+      + database_path         = (known after apply)
+      + deletion_protection   = false
+      + document_api_endpoint = (known after apply)
+      + folder_id             = (known after apply)
+      + id                    = (known after apply)
+      + location_id           = (known after apply)
+      + name                  = "state-lock-db"
+      + sleep_after           = 0
+      + status                = (known after apply)
+      + tls_enabled           = (known after apply)
+      + ydb_api_endpoint      = (known after apply)
+      + ydb_full_endpoint     = (known after apply)
+
+      + serverless_database {
+          + enable_throttling_rcu_limit = (known after apply)
+          + provisioned_rcu_limit       = (known after apply)
+          + storage_size_limit          = (known after apply)
+          + throttling_rcu_limit        = (known after apply)
+        }
+    }
+
+  # yandex_ydb_table.table_tf_state_lock will be created
+  + resource "yandex_ydb_table" "table_tf_state_lock" {
+      + attributes             = (known after apply)
+      + connection_string      = (known after apply)
+      + id                     = (known after apply)
+      + key_bloom_filter       = (known after apply)
+      + path                   = "state-lock-table"
+      + primary_key            = [
+          + "LockID",
+        ]
+      + read_replicas_settings = (known after apply)
+
+      + column {
+          + family   = (known after apply)
+          + name     = "LockID"
+          + not_null = false
+          + type     = "String"
+        }
+
+      + partitioning_settings {
+          + auto_partitioning_by_load              = false
+          + auto_partitioning_by_size_enabled      = true
+          + auto_partitioning_max_partitions_count = 0
+          + auto_partitioning_min_partitions_count = 1
+          + auto_partitioning_partition_size_mb    = 2048
+          + uniform_partitions                     = 0
+        }
+    }
+
+Plan: 14 to add, 0 to change, 0 to destroy.
+yandex_iam_service_account.terraform_sa: Creating...
+yandex_iam_service_account.terraform_sa: Creation complete after 3s [id=ajet4oichfl8ue22d5ik]
+yandex_resourcemanager_folder_iam_member.terraform_sa_storage: Creating...
+yandex_iam_service_account_static_access_key.terraform_key: Creating...
+yandex_resourcemanager_folder_iam_member.terraform_sa_lb: Creating...
+yandex_resourcemanager_folder_iam_member.terraform_sa_decrypter: Creating...
+yandex_resourcemanager_folder_iam_member.terraform_sa_encrypter: Creating...
+yandex_resourcemanager_folder_iam_member.terraform_sa_ydb: Creating...
+yandex_resourcemanager_folder_iam_member.terraform_sa_compute: Creating...
+yandex_iam_service_account_static_access_key.terraform_key: Creation complete after 1s [id=ajel5vr3an7h94jklsde]
+local_file.terraform_sa_keys: Creating...
+local_file.terraform_sa_keys: Creation complete after 0s [id=89b87ce1dcdf73d60e146b2703e3bb6bc4bb0ef3]
+yandex_resourcemanager_folder_iam_member.terraform_sa_encrypter: Creation complete after 4s [id=b1g36j4atdpik0n1fbjo/kms.keys.encrypter/serviceAccount:ajet4oichfl8ue22d5ik]
+yandex_resourcemanager_folder_iam_member.terraform_sa_decrypter: Creation complete after 7s [id=b1g36j4atdpik0n1fbjo/kms.keys.decrypter/serviceAccount:ajet4oichfl8ue22d5ik]
+yandex_kms_symmetric_key.encryption_key: Creating...
+yandex_kms_symmetric_key.encryption_key: Creation complete after 1s [id=abj0ka99ga0t9ahp57m6]
+yandex_resourcemanager_folder_iam_member.terraform_sa_storage: Still creating... [10s elapsed]
+yandex_resourcemanager_folder_iam_member.terraform_sa_lb: Still creating... [10s elapsed]
+yandex_resourcemanager_folder_iam_member.terraform_sa_ydb: Still creating... [10s elapsed]
+yandex_resourcemanager_folder_iam_member.terraform_sa_compute: Still creating... [10s elapsed]
+yandex_resourcemanager_folder_iam_member.terraform_sa_storage: Creation complete after 11s [id=b1g36j4atdpik0n1fbjo/storage.editor/serviceAccount:ajet4oichfl8ue22d5ik]
+yandex_storage_bucket.tf_state_bucket: Creating...
+yandex_resourcemanager_folder_iam_member.terraform_sa_lb: Creation complete after 15s [id=b1g36j4atdpik0n1fbjo/load-balancer.admin/serviceAccount:ajet4oichfl8ue22d5ik]
+yandex_resourcemanager_folder_iam_member.terraform_sa_compute: Creation complete after 18s [id=b1g36j4atdpik0n1fbjo/compute.editor/serviceAccount:ajet4oichfl8ue22d5ik]
+null_resource.terraform_sa_iam: Creating...
+null_resource.terraform_sa_iam: Provisioning with 'local-exec'...
+null_resource.terraform_sa_iam (local-exec): Executing: ["/bin/sh" "-c" "yc iam key create --folder-id b1g36j4atdpik0n1fbjo --service-account-name terraform-sa --output ../production/terraform_sa_key.json"]
+yandex_resourcemanager_folder_iam_member.terraform_sa_ydb: Still creating... [20s elapsed]
+null_resource.terraform_sa_iam (local-exec): id: aje39r2566gbhdf3banu
+null_resource.terraform_sa_iam (local-exec): service_account_id: ajet4oichfl8ue22d5ik
+null_resource.terraform_sa_iam (local-exec): created_at: "2024-06-23T16:29:19.246909928Z"
+null_resource.terraform_sa_iam (local-exec): key_algorithm: RSA_2048
+
+null_resource.terraform_sa_iam: Creation complete after 3s [id=751860718442343498]
+yandex_storage_bucket.tf_state_bucket: Still creating... [10s elapsed]
+yandex_resourcemanager_folder_iam_member.terraform_sa_ydb: Creation complete after 22s [id=b1g36j4atdpik0n1fbjo/ydb.editor/serviceAccount:ajet4oichfl8ue22d5ik]
+yandex_ydb_database_serverless.db_tf_state_lock: Creating...
+yandex_storage_bucket.tf_state_bucket: Still creating... [20s elapsed]
+yandex_ydb_database_serverless.db_tf_state_lock: Creation complete after 10s [id=etnb8gv6pcuq08gf6ugp]
+yandex_ydb_table.table_tf_state_lock: Creating...
+yandex_ydb_table.table_tf_state_lock: Creation complete after 3s [id=grpcs://ydb.serverless.yandexcloud.net:2135/?database=/ru-central1/b1gvv09q0t0tnutrh88e/etnb8gv6pcuq08gf6ugp?path=state-lock-table]
+yandex_storage_bucket.tf_state_bucket: Still creating... [30s elapsed]
+yandex_storage_bucket.tf_state_bucket: Still creating... [40s elapsed]
+yandex_storage_bucket.tf_state_bucket: Still creating... [50s elapsed]
+yandex_storage_bucket.tf_state_bucket: Still creating... [1m0s elapsed]
+yandex_storage_bucket.tf_state_bucket: Still creating... [1m10s elapsed]
+yandex_storage_bucket.tf_state_bucket: Still creating... [1m20s elapsed]
+yandex_storage_bucket.tf_state_bucket: Still creating... [1m30s elapsed]
+yandex_storage_bucket.tf_state_bucket: Still creating... [1m40s elapsed]
+yandex_storage_bucket.tf_state_bucket: Still creating... [1m50s elapsed]
+yandex_storage_bucket.tf_state_bucket: Still creating... [2m0s elapsed]
+yandex_storage_bucket.tf_state_bucket: Creation complete after 2m3s [id=nedorezov-tf-state-bucket]
+
+Apply complete! Resources: 14 added, 0 changed, 0 destroyed.
+nedorezov@GARRO:/mnt/e/netology-devops-diploma-terraform/prepare$
