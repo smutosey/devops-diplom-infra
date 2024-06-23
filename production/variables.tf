@@ -13,23 +13,21 @@ variable "default_zone" {
   description = "https://cloud.yandex.ru/docs/overview/concepts/geo-scope"
 }
 
-variable "backend_access_key" {
-  type        = string
+variable "vpc_params" {
+  type = object({
+    name = string
+    subnets = list(object({
+      zone = string
+      cidr = string
+    }))
+  })
+  description = "Network params for vms k8s cluster"
+  default = {
+    name = "k8s-network"
+    subnets = [
+      { zone = "ru-central1-a", cidr = "10.0.1.0/24" },
+      { zone = "ru-central1-b", cidr = "10.0.2.0/24" },
+      { zone = "ru-central1-d", cidr = "10.0.3.0/24" },
+    ]
+  }
 }
-
-variable "backend_secret_key" {
-  type        = string
-}
-
-variable "backend_bucket_name" {
-  type        = string
-}
-
-variable "backend_tfstatedb_endpoint" {
-  type        = string
-}
-
-variable "backend_tfstatedb_table" {
-  type        = string
-}
-

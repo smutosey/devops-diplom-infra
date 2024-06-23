@@ -39,30 +39,44 @@ resource "yandex_ydb_database_serverless" "db_tf_state_lock" {
   serverless_database {}
 }
 
-resource "yandex_ydb_table" "table_tf_state_lock" {
-  depends_on = [yandex_ydb_database_serverless.db_tf_state_lock]
+resource "aws_dynamodb_table" "table_tf_state_lock" {
+  name         = "state-lock-table"
+  billing_mode = "PAY_PER_REQUEST"
 
-  path              = "state-lock-table"
-  connection_string = yandex_ydb_database_serverless.db_tf_state_lock.ydb_full_endpoint
+  hash_key  = "LockID"
 
-  lifecycle {
-    ignore_changes = [column]
+  attribute {
+    name = "LockID"
+    type = "S"
   }
 
-  primary_key = ["LockID"]
-
-  column {
-    name     = "LockID"
-    not_null = false
-    type     = "String"
-  }
-
-  partitioning_settings {
-    auto_partitioning_by_load              = false
-    auto_partitioning_by_size_enabled      = true
-    auto_partitioning_max_partitions_count = 0
-    auto_partitioning_min_partitions_count = 1
-    auto_partitioning_partition_size_mb    = 2048
-    uniform_partitions                     = 0
-  }
 }
+# resource "yandex_ydb_table" "table_tf_state_lock" {
+#   depends_on = [yandex_ydb_database_serverless.db_tf_state_lock]
+#
+#   path              = "state-lock-table"
+#   connection_string = yandex_ydb_database_serverless.db_tf_state_lock.ydb_full_endpoint
+#
+#   lifecycle {
+#     ignore_changes = [column]
+#   }
+#
+#   primary_key = ["LockID"]
+#
+#   column {
+#     name     = "LockID"
+#     not_null = false
+#     type     = "String"
+#   }
+#
+#   partitioning_settings {
+#     auto_partitioning_by_load              = false
+#     auto_partitioning_by_size_enabled      = true
+#     auto_partitioning_max_partitions_count = 0
+#     auto_partitioning_min_partitions_count = 1
+#     auto_partitioning_partition_size_mb    = 2048
+#     uniform_partitions                     = 0
+#   }
+# }
+
+
