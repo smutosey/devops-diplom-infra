@@ -11,7 +11,7 @@ resource "yandex_kms_symmetric_key" "encryption_key" {
 }
 
 resource "yandex_storage_bucket" "tf_state_bucket" {
-  depends_on = [yandex_resourcemanager_folder_iam_member.terraform_sa_roles]
+  depends_on = [yandex_kms_symmetric_key.encryption_key]
 
   bucket     = var.backend_params.bucket_name
   access_key = yandex_iam_service_account_static_access_key.terraform_key.access_key
@@ -46,7 +46,4 @@ resource "aws_dynamodb_table" "table_tf_state_lock" {
     name = "LockID"
     type = "S"
   }
-
 }
-
-
