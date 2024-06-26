@@ -14,24 +14,40 @@ k8s_vpc_params = {
 
 instance_params = {
   masters = {
-    group_name      = "control-plane"
+    group_name      = "k8s-control-plane"
+    vm_name         = "controller"
+    platform        = "standard-v2"
+    image_family    = "ubuntu-2004-lts"
     group_size      = 3
     public_ip       = false
-    preemptible     = false
     max_unavailable = 3
     max_expansion   = 3
     max_creating    = 3
     max_deleting    = 3
+    preemptible     = false
   }
   workers = {
-    group_name      = "worker"
+    group_name      = "k8s-workers"
+    vm_name         = "worker"
+    platform        = "standard-v2"
+    image_family    = "ubuntu-2004-lts"
     group_size      = 3
     public_ip       = false
-    preemptible     = false
     max_unavailable = 3
     max_expansion   = 3
     max_creating    = 3
     max_deleting    = 3
+    preemptible     = true
+  }
+  bastion = {
+    vm_name         = "bastion"
+    platform        = "standard-v2"
+    image_family    = "ubuntu-2004-lts"
+    subnet          = "public"
+    public_ip       = true
+    instance_cores  = 2
+    instance_memory = 2
+    preemptible     = false
   }
 }
 

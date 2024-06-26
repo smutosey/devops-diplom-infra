@@ -40,6 +40,26 @@ variable "k8s_vpc_params" {
   })
 }
 
+variable "instance_params" {
+  description = "instance params"
+  type = map(object({
+    group_name      = optional(string)
+    vm_name         = string
+    platform        = string
+    image_family    = string
+    core_fraction   = number
+    instance_cores  = number
+    instance_memory = number
+    disk_size       = number
+    group_size      = number
+    public_ip       = bool
+    max_unavailable = number
+    max_expansion   = number
+    max_creating    = number
+    max_deleting    = number
+    preemptible     = bool
+  }))
+}
 
 variable "masters_params" {
   type = object({
