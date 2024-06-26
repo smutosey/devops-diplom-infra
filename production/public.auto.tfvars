@@ -52,10 +52,10 @@ instance_params = {
     platform        = "standard-v2"
     image_family    = "nat-instance-ubuntu"
     subnet          = "public"
-    core_fraction   = 5
-    instance_cores  = 2
-    instance_memory = 2
-    disk_size       = 10
+    core_fraction   = 100
+    instance_cores  = 4
+    instance_memory = 4
+    disk_size       = 20
     public_ip       = true
     preemptible     = false
   }

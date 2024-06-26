@@ -6,8 +6,9 @@ resource "yandex_compute_instance" "bastion" {
   allow_stopping_for_update = true
 
   resources {
-    cores  = var.instance_params["bastion"].instance_cores
     memory = var.instance_params["bastion"].instance_memory
+    cores  = var.instance_params["bastion"].instance_cores
+    core_fraction = var.instance_params["bastion"].core_fraction
   }
 
   boot_disk {
