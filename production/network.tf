@@ -8,7 +8,7 @@ resource "yandex_vpc_route_table" "nat_route" {
 
   static_route {
     destination_prefix = "0.0.0.0/0"
-    next_hop_address   =  cidrhost(var.vpc_params.subnets[var.instance_params["bastion"].subnet].cidr, -2)
+    next_hop_address   = cidrhost(var.vpc_params.subnets[var.instance_params["bastion"].subnet].cidr, -2)
   }
 }
 

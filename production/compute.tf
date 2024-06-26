@@ -1,13 +1,13 @@
 resource "yandex_compute_instance" "bastion" {
-  name        = var.instance_params["bastion"].vm_name
-  hostname    = var.instance_params["bastion"].vm_name
-  platform_id = var.instance_params["bastion"].platform
-  zone        = yandex_vpc_subnet.k8s_subnets[var.instance_params["bastion"].subnet].zone
+  name                      = var.instance_params["bastion"].vm_name
+  hostname                  = var.instance_params["bastion"].vm_name
+  platform_id               = var.instance_params["bastion"].platform
+  zone                      = yandex_vpc_subnet.k8s_subnets[var.instance_params["bastion"].subnet].zone
   allow_stopping_for_update = true
 
   resources {
-    memory = var.instance_params["bastion"].instance_memory
-    cores  = var.instance_params["bastion"].instance_cores
+    memory        = var.instance_params["bastion"].instance_memory
+    cores         = var.instance_params["bastion"].instance_cores
     core_fraction = var.instance_params["bastion"].core_fraction
   }
 
@@ -19,10 +19,10 @@ resource "yandex_compute_instance" "bastion" {
   }
 
   network_interface {
-    subnet_id  = yandex_vpc_subnet.k8s_subnets[var.instance_params["bastion"].subnet].id
-    nat        = var.instance_params["bastion"].public_ip
-    nat_ip_address = yandex_vpc_address.bastion_addr.external_ipv4_address[0].address
-    ip_address = cidrhost(var.vpc_params.subnets[var.instance_params["bastion"].subnet].cidr, -2)
+    subnet_id          = yandex_vpc_subnet.k8s_subnets[var.instance_params["bastion"].subnet].id
+    nat                = var.instance_params["bastion"].public_ip
+    nat_ip_address     = yandex_vpc_address.bastion_addr.external_ipv4_address[0].address
+    ip_address         = cidrhost(var.vpc_params.subnets[var.instance_params["bastion"].subnet].cidr, -2)
     security_group_ids = [yandex_vpc_security_group.bastion_sg.id]
   }
 
@@ -31,7 +31,7 @@ resource "yandex_compute_instance" "bastion" {
   }
 
   metadata = {
-    user-data          = data.template_file.web_cloudinit.rendered
+    user-data = data.template_file.web_cloudinit.rendered
   }
 }
 
@@ -57,9 +57,9 @@ resource "yandex_compute_instance_group" "control-plane" {
     }
 
     network_interface {
-      network_id = yandex_vpc_network.k8s_vpc.id
-      subnet_ids = [for key, value in yandex_vpc_subnet.k8s_subnets : value.id if value.name != "public"]
-      nat        = var.instance_params["masters"].public_ip
+      network_id         = yandex_vpc_network.k8s_vpc.id
+      subnet_ids         = [for key, value in yandex_vpc_subnet.k8s_subnets : value.id if value.name != "public"]
+      nat                = var.instance_params["masters"].public_ip
       security_group_ids = [yandex_vpc_security_group.k8s_sg.id]
     }
 
@@ -113,9 +113,9 @@ resource "yandex_compute_instance_group" "worker" {
     }
 
     network_interface {
-      network_id = yandex_vpc_network.k8s_vpc.id
-      subnet_ids = [for key, value in yandex_vpc_subnet.k8s_subnets : value.id if value.name != "public"]
-      nat        = var.instance_params["workers"].public_ip
+      network_id         = yandex_vpc_network.k8s_vpc.id
+      subnet_ids         = [for key, value in yandex_vpc_subnet.k8s_subnets : value.id if value.name != "public"]
+      nat                = var.instance_params["workers"].public_ip
       security_group_ids = [yandex_vpc_security_group.k8s_sg.id]
     }
 

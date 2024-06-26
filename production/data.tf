@@ -4,7 +4,7 @@ data "yandex_iam_service_account" "terraform" {
 
 data "yandex_compute_image" "vm_images" {
   for_each = var.instance_params
-  family = each.value.image_family
+  family   = each.value.image_family
 }
 
 data "template_file" "web_cloudinit" {
