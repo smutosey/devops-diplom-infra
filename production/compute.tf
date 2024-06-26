@@ -23,7 +23,7 @@ resource "yandex_compute_instance_group" "control-plane" {
       network_id = yandex_vpc_network.k8s_vpc.id
       subnet_ids = [for key, value in yandex_vpc_subnet.k8s_subnets : value.id if value.name != "public"]
       nat        = var.masters_params.public_ip
-      security_group_ids = [yandex_vpc_security_group.internal_bastion_sg.id]
+      security_group_ids = [yandex_vpc_security_group.hosts_sg.id]
     }
 
     scheduling_policy {
@@ -79,7 +79,7 @@ resource "yandex_compute_instance_group" "worker" {
       network_id = yandex_vpc_network.k8s_vpc.id
       subnet_ids = [for key, value in yandex_vpc_subnet.k8s_subnets : value.id if value.name != "public"]
       nat        = var.workers_params.public_ip
-      security_group_ids = [yandex_vpc_security_group.internal_bastion_sg.id]
+      security_group_ids = [yandex_vpc_security_group.hosts_sg.id]
     }
 
     scheduling_policy {
@@ -135,7 +135,7 @@ resource "yandex_compute_instance" "bastion_vm" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.k8s_subnets["k8s-a"].id
+    subnet_id = yandex_vpc_subnet.k8s_subnets["public"].id
     nat = false
     ip_address = var.bastion_vm_params.internal_ip
     security_group_ids = [yandex_vpc_security_group.internal_bastion_sg.id]
@@ -173,7 +173,7 @@ resource "yandex_compute_instance" "nat_vm" {
     subnet_id  = yandex_vpc_subnet.k8s_subnets[var.nat_vm_params.subnet].id
     nat        = var.nat_vm_params.public_ip
     ip_address = var.nat_vm_params.ip == null ? null : var.nat_vm_params.ip
-    security_group_ids = [yandex_vpc_security_group.internal_bastion_sg.id]
+    security_group_ids = [yandex_vpc_security_group.hosts_sg.id]
   }
 
   scheduling_policy {

@@ -40,15 +40,6 @@ variable "k8s_vpc_params" {
   })
 }
 
-variable "bastion_vpc_params" {
-  description = "Production VPC environment variables"
-  type = object({
-    name   = string
-    subnet = string
-    zone   = string
-    cidr   = string
-  })
-}
 
 variable "masters_params" {
   type = object({
