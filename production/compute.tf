@@ -21,7 +21,7 @@ resource "yandex_compute_instance" "bastion" {
     subnet_id  = yandex_vpc_subnet.k8s_subnets[var.instance_params["bastion"].subnet].id
     nat        = var.instance_params["bastion"].public_ip
     nat_ip_address = yandex_vpc_address.bastion_addr.external_ipv4_address[0].address
-    ip_address = var.instance_params["bastion"].internal_ip == null ? null : var.instance_params["bastion"].internal_ip
+    ip_address = cidrhost(var.vpc_params.subnets[var.instance_params["bastion"].subnet].cidr, -2)
     security_group_ids = [yandex_vpc_security_group.bastion_sg.id]
   }
 
@@ -41,7 +41,7 @@ resource "yandex_compute_instance_group" "control-plane" {
   service_account_id = data.yandex_iam_service_account.terraform.id
   instance_template {
     platform_id = var.instance_params["masters"].platform
-    name        = var.instance_params["masters"].vm_name + "-{instance.index}"
+    name        = "${var.instance_params["masters"].vm_name}-{instance.index}"
     resources {
       memory        = var.instance_params["masters"].instance_memory
       cores         = var.instance_params["masters"].instance_cores
@@ -97,7 +97,7 @@ resource "yandex_compute_instance_group" "worker" {
   service_account_id = data.yandex_iam_service_account.terraform.id
   instance_template {
     platform_id = var.instance_params["workers"].platform
-    name        = var.instance_params["workers"].vm_name + "-{instance.index}"
+    name        = "${var.instance_params["workers"].vm_name}-{instance.index}"
     resources {
       memory        = var.instance_params["workers"].instance_memory
       cores         = var.instance_params["workers"].instance_cores

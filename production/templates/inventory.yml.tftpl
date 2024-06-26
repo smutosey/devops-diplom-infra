@@ -3,20 +3,24 @@ all:
   children:
     hosts_control:
       hosts:
-%{ for i, node in control_planes ~}
-        ${i}:
-          ansible_host: ${node.external_ip_address}
-          ip: ${node.internal_ip_address}
-          access_ip: ${node.internal_ip_address}
+%{ for node in controllers ~}
+        ${node}:
+          ansible_host: ${node}
+          ip: ${node}
+          access_ip: ${node}
 %{ endfor ~}
+      vars:
+        ansible_ssh_common_args: '-o StrictHostKeyChecking=no -J ${bastion.key}'
     hosts_workers:
       hosts:
-%{ for i, node in workers ~}
-        ${i}:
-          ansible_host: ${node.external_ip_address}
-          ip: ${node.internal_ip_address}
-          access_ip: ${node.internal_ip_address}
+%{ for node in workers ~}
+        ${node}:
+          ansible_host: ${node}
+          ip: ${node}
+          access_ip: ${node}
 %{ endfor ~}
+      vars:
+        ansible_ssh_common_args: '-o StrictHostKeyChecking=no -J ${bastion.key}'
     kube_control_plane:
       children:
         hosts_control:

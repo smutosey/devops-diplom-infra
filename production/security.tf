@@ -10,6 +10,20 @@ resource "yandex_vpc_security_group" "bastion_sg" {
     port           = 22
   }
 
+  ingress {
+    protocol       = "TCP"
+    description    = "ext-http"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    port           = 80
+  }
+
+  ingress {
+    protocol       = "TCP"
+    description    = "ext-https"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    port           = 443
+  }
+
   egress {
     protocol       = "ANY"
     description    = "outbound traffic"
@@ -39,6 +53,13 @@ resource "yandex_vpc_security_group" "k8s_sg" {
     protocol          = "ICMP"
     description       = "ICMP"
     predefined_target = "self_security_group"
+  }
+
+  ingress {
+    protocol          = "TCP"
+    description       = "SSH connection from other cluster hosts"
+    predefined_target = "self_security_group"
+    port              = 22
   }
 
   egress {
