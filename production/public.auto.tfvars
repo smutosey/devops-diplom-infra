@@ -2,7 +2,7 @@ default_zone = "ru-central1-a"
 admin        = "nedorezov"
 vm_packages  = ["vim"]
 
-k8s_vpc_params = {
+vpc_params = {
   name = "k8s-vpc"
   subnets = {
     public = { zone = "ru-central1-b", cidr = "192.168.0.0/24" },
@@ -15,10 +15,14 @@ k8s_vpc_params = {
 instance_params = {
   masters = {
     group_name      = "k8s-control-plane"
+    group_size      = 3
     vm_name         = "controller"
     platform        = "standard-v2"
-    image_family    = "ubuntu-2004-lts"
-    group_size      = 3
+    image_family    = "ubuntu-2404-lts-oslogin"
+    core_fraction   = 20
+    instance_cores  = 2
+    instance_memory = 4
+    disk_size       = 30
     public_ip       = false
     max_unavailable = 3
     max_expansion   = 3
@@ -28,10 +32,14 @@ instance_params = {
   }
   workers = {
     group_name      = "k8s-workers"
+    group_size      = 3
     vm_name         = "worker"
     platform        = "standard-v2"
-    image_family    = "ubuntu-2004-lts"
-    group_size      = 3
+    image_family    = "ubuntu-2404-lts-oslogin"
+    core_fraction   = 20
+    instance_cores  = 2
+    instance_memory = 4
+    disk_size       = 30
     public_ip       = false
     max_unavailable = 3
     max_expansion   = 3
@@ -42,56 +50,13 @@ instance_params = {
   bastion = {
     vm_name         = "bastion"
     platform        = "standard-v2"
-    image_family    = "ubuntu-2004-lts"
+    image_family    = "nat-instance-ubuntu"
     subnet          = "public"
-    public_ip       = true
+    core_fraction   = 5
     instance_cores  = 2
     instance_memory = 2
+    disk_size       = 10
+    public_ip       = true
     preemptible     = false
   }
-}
-
-masters_params = {
-  group_name      = "control-plane"
-  platform        = "standard-v2"
-  image_family    = "ubuntu-2004-lts"
-  core_fraction   = 20
-  instance_cores  = 2
-  instance_memory = 4
-  disk_size       = 30
-  group_size      = 3
-  public_ip       = false
-  max_unavailable = 3
-  max_expansion   = 3
-  max_creating    = 3
-  max_deleting    = 3
-  preemptible     = false
-}
-
-workers_params = {
-  group_name      = "worker"
-  platform        = "standard-v2"
-  image_family    = "ubuntu-2004-lts"
-  core_fraction   = 20
-  instance_cores  = 2
-  instance_memory = 4
-  disk_size       = 30
-  group_size      = 3
-  public_ip       = false
-  max_unavailable = 3
-  max_expansion   = 3
-  max_creating    = 3
-  max_deleting    = 3
-  preemptible     = true
-}
-
-bastion_vm_params = {
-  name            = "bastion"
-  image_family    = "ubuntu-2004-lts"
-  subnet          = "bastion"
-  public_ip       = true
-  instance_cores  = 2
-  instance_memory = 2
-  boot_disk_size  = 30
-  preemptible     = false
 }

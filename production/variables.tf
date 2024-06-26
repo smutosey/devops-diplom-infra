@@ -28,7 +28,7 @@ variable "vm_packages" {
   description = "Packages to install on vm creates"
 }
 
-variable "k8s_vpc_params" {
+variable "vpc_params" {
   description = "Production VPC environment variables"
   type = object({
     name = string
@@ -44,6 +44,8 @@ variable "instance_params" {
   description = "instance params"
   type = map(object({
     group_name      = optional(string)
+    group_size      = optional(number)
+    subnet          = optional(string)
     vm_name         = string
     platform        = string
     image_family    = string
@@ -51,82 +53,12 @@ variable "instance_params" {
     instance_cores  = number
     instance_memory = number
     disk_size       = number
-    group_size      = number
     public_ip       = bool
-    max_unavailable = number
-    max_expansion   = number
-    max_creating    = number
-    max_deleting    = number
+    internal_ip     = optional(string)
+    max_unavailable = optional(number)
+    max_expansion   = optional(number)
+    max_creating    = optional(number)
+    max_deleting    = optional(number)
     preemptible     = bool
   }))
-}
-
-variable "masters_params" {
-  type = object({
-    group_name      = string
-    platform        = string
-    image_family    = string
-    core_fraction   = number
-    instance_cores  = number
-    instance_memory = number
-    disk_size       = number
-    group_size      = number
-    public_ip       = bool
-    max_unavailable = number
-    max_expansion   = number
-    max_creating    = number
-    max_deleting    = number
-    preemptible     = bool
-  })
-  description = "k8s control plane VM group params"
-}
-
-variable "workers_params" {
-  type = object({
-    group_name      = string
-    platform        = string
-    image_family    = string
-    core_fraction   = number
-    instance_cores  = number
-    instance_memory = number
-    disk_size       = number
-    group_size      = number
-    public_ip       = bool
-    max_unavailable = number
-    max_expansion   = number
-    max_creating    = number
-    max_deleting    = number
-    preemptible     = bool
-  })
-  description = "k8s workers VM group params"
-}
-
-variable "nat_vm_params" {
-  type = object({
-    name            = string
-    image_family    = string
-    subnet          = string
-    public_ip       = bool
-    ip              = optional(string)
-    instance_cores  = number
-    instance_memory = number
-    boot_disk_size  = number
-    preemptible     = bool
-  })
-  description = "NAT VM params (key = instance name)"
-}
-
-variable "bastion_vm_params" {
-  type = object({
-    name            = string
-    image_family    = string
-    subnet          = string
-    public_ip       = bool
-    internal_ip     = string
-    instance_cores  = number
-    instance_memory = number
-    boot_disk_size  = number
-    preemptible     = bool
-  })
-  description = "Bastion VM params (key = instance name)"
 }
