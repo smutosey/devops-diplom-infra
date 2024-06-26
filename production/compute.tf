@@ -20,6 +20,7 @@ resource "yandex_compute_instance" "bastion" {
   network_interface {
     subnet_id  = yandex_vpc_subnet.k8s_subnets[var.instance_params["bastion"].subnet].id
     nat        = var.instance_params["bastion"].public_ip
+    nat_ip_address = yandex_vpc_address.bastion_addr.external_ipv4_address[0].address
     ip_address = var.instance_params["bastion"].internal_ip == null ? null : var.instance_params["bastion"].internal_ip
     security_group_ids = [yandex_vpc_security_group.bastion_sg.id]
   }
