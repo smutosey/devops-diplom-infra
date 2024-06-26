@@ -9,6 +9,7 @@ sa_params = {
     "kms.keys.decrypter",
     "ydb.editor",
     "vpc.admin",
+    "iam.serviceAccounts.user",
   ]
   backend_config_path = "../production/backend-config.tfvars"
   backend_key_path    = "../production/terraform_sa_key.json"
