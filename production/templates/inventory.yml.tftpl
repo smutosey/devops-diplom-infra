@@ -10,7 +10,8 @@ all:
           access_ip: ${ip}
 %{ endfor ~}
       vars:
-        ansible_ssh_common_args: '-o StrictHostKeyChecking=no -J ${bastion.external_ip_address}'
+        ansible_user: ${user}
+        ansible_ssh_common_args: '-o StrictHostKeyChecking=no -J ${user}@${bastion.external_ip_address}'
     hosts_workers:
       hosts:
 %{ for node, ip in workers ~}
@@ -20,7 +21,8 @@ all:
           access_ip: ${ip}
 %{ endfor ~}
       vars:
-        ansible_ssh_common_args: '-o StrictHostKeyChecking=no -J ${bastion.external_ip_address}'
+        ansible_user: ${user}
+        ansible_ssh_common_args: '-o StrictHostKeyChecking=no -J ${user}@${bastion.external_ip_address}'
     kube_control_plane:
       children:
         hosts_control:

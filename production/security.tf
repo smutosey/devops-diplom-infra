@@ -62,6 +62,12 @@ resource "yandex_vpc_security_group" "k8s_sg" {
     port              = 22
   }
 
+  ingress {
+    protocol          = "ANY"
+    description       = "any traffic inside group"
+    predefined_target = "self_security_group"
+  }
+
   egress {
     protocol       = "ANY"
     description    = "outbound traffic"

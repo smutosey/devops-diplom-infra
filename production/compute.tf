@@ -89,6 +89,12 @@ resource "yandex_compute_instance_group" "control-plane" {
     max_creating    = var.instance_params["masters"].max_creating
     max_deleting    = var.instance_params["masters"].max_deleting
   }
+
+#   load_balancer {
+#     target_group_name        = "control-plane"
+#     target_group_description = "Целевая группа NLB Control plane"
+#   }
+
 }
 
 resource "yandex_compute_instance_group" "worker" {

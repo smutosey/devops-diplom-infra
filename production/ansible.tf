@@ -4,6 +4,7 @@ resource "local_file" "ansible_inventory" {
     yandex_compute_instance_group.control-plane,
   ]
   content = templatefile("./templates/inventory.yml.tftpl", {
+    user = var.admin
     controllers = {
       for instance in yandex_compute_instance_group.control-plane.instances :
       instance.fqdn => instance.network_interface.0.ip_address
