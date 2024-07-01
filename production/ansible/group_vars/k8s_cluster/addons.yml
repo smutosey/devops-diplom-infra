@@ -4,7 +4,7 @@
 # dashboard_enabled: false
 
 # Helm deployment
-helm_enabled: true
+helm_enabled: false
 
 # Registry deployment
 registry_enabled: false
@@ -233,7 +233,7 @@ metallb_namespace: "metallb-system"
 #           address_pool:
 #             - pool2
 
-argocd_enabled: true
+argocd_enabled: false
 # argocd_version: v2.11.0
 # argocd_namespace: argocd
 # Default password:

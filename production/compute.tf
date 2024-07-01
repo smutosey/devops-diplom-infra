@@ -36,7 +36,10 @@ resource "yandex_compute_instance" "bastion" {
 }
 
 resource "yandex_compute_instance_group" "control-plane" {
-  depends_on         = [yandex_vpc_subnet.k8s_subnets]
+  depends_on         = [
+    yandex_vpc_subnet.k8s_subnets,
+    yandex_compute_instance.bastion
+  ]
   name               = var.instance_params["masters"].group_name
   folder_id          = var.folder_id
   service_account_id = data.yandex_iam_service_account.terraform.id
@@ -90,11 +93,22 @@ resource "yandex_compute_instance_group" "control-plane" {
     max_deleting    = var.instance_params["masters"].max_deleting
   }
 
-#   load_balancer {
-#     target_group_name        = "control-plane"
-#     target_group_description = "Целевая группа NLB Control plane"
-#   }
+  load_balancer {
+    target_group_name        = "control-plane"
+    target_group_description = "Целевая группа NLB Control plane"
+  }
 
+  provisioner "remote-exec" {
+    inline = [
+      "while ! nc -z ${self.instances.2.network_interface.0.ip_address}   22; do sleep   5; done",
+    ]
+    connection {
+      type     = "ssh"
+      user     = var.admin
+      private_key = file(var.ssh_private_key)
+      host = yandex_compute_instance.bastion.network_interface[0].nat_ip_address
+    }
+  }
 }
 
 resource "yandex_compute_instance_group" "worker" {
@@ -151,6 +165,16 @@ resource "yandex_compute_instance_group" "worker" {
     max_creating    = var.instance_params["workers"].max_creating
     max_deleting    = var.instance_params["workers"].max_deleting
   }
+
+  provisioner "remote-exec" {
+    inline = [
+      "while ! nc -z ${self.instances.2.network_interface.0.ip_address}   22; do sleep   5; done",
+    ]
+    connection {
+      type     = "ssh"
+      user     = var.admin
+      private_key = file(var.ssh_private_key)
+      host = yandex_compute_instance.bastion.network_interface[0].nat_ip_address
+    }
+  }
 }
-
-

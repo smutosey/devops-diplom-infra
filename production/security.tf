@@ -1,5 +1,5 @@
 resource "yandex_vpc_security_group" "bastion_sg" {
-  name        = "Bastion SG"
+  name        = "Bastion-SG"
   description = "Bastion connections"
   network_id  = yandex_vpc_network.k8s_vpc.id
 
@@ -32,7 +32,7 @@ resource "yandex_vpc_security_group" "bastion_sg" {
 }
 
 resource "yandex_vpc_security_group" "k8s_sg" {
-  name        = "K8s hosts SG"
+  name        = "K8s-SG"
   description = "SG for hosts in k8s cluster"
   network_id  = yandex_vpc_network.k8s_vpc.id
 
@@ -68,7 +68,32 @@ resource "yandex_vpc_security_group" "k8s_sg" {
     predefined_target = "self_security_group"
   }
 
+  ingress {
+    protocol       = "TCP"
+    description    = "nginx"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    port           = 80
+  }
+  ingress {
+    protocol       = "TCP"
+    description    = "k8snginx"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    port           = 8081
+  }
+  ingress {
+    protocol       = "TCP"
+    description    = "kubeapi"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    port           = 6443
+  }
+
   egress {
+    protocol       = "ANY"
+    description    = "outbound traffic"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
     protocol       = "ANY"
     description    = "outbound traffic"
     v4_cidr_blocks = ["0.0.0.0/0"]

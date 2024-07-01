@@ -1,6 +1,12 @@
 ---
 all:
   children:
+    bastion:
+      hosts:
+        bastion:
+          ansible_host: ${bastion.external_ip_address}
+      vars:
+        ansible_user: ${user}
     hosts_control:
       hosts:
 %{ for node, ip in controllers ~}
@@ -11,7 +17,6 @@ all:
 %{ endfor ~}
       vars:
         ansible_user: ${user}
-        ansible_ssh_common_args: '-o StrictHostKeyChecking=no -J ${user}@${bastion.external_ip_address}'
     hosts_workers:
       hosts:
 %{ for node, ip in workers ~}
@@ -22,7 +27,6 @@ all:
 %{ endfor ~}
       vars:
         ansible_user: ${user}
-        ansible_ssh_common_args: '-o StrictHostKeyChecking=no -J ${user}@${bastion.external_ip_address}'
     kube_control_plane:
       children:
         hosts_control:
@@ -36,5 +40,3 @@ all:
       children:
         kube_control_plane:
         kube_node:
-    calico_rr:
-      hosts: {}

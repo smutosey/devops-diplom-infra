@@ -23,6 +23,11 @@ variable "ssh_public_key" {
   description = "Location of SSH public key."
 }
 
+variable "ssh_private_key" {
+  type        = string
+  description = "Location of SSH private key."
+}
+
 variable "vm_packages" {
   type        = list(string)
   description = "Packages to install on vm creates"

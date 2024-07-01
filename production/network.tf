@@ -24,9 +24,45 @@ resource "yandex_vpc_subnet" "k8s_subnets" {
 
 
 resource "yandex_vpc_address" "bastion_addr" {
-  name = "Bastion VM external addr"
+  name = "BastionIP"
 
   external_ipv4_address {
     zone_id = yandex_vpc_subnet.k8s_subnets["public"].zone
+  }
+}
+
+resource "yandex_vpc_address" "lb_addr" {
+  name = "LoadbalancerIP"
+
+  external_ipv4_address {
+    zone_id = yandex_vpc_subnet.k8s_subnets["public"].zone
+  }
+
+  provisioner "local-exec" {
+    command = "sed -i -e '/supplementary_addresses_in_ssl_keys: / s/: .*/: [${self.external_ipv4_address[0].address}]/' ./ansible/group_vars/k8s_cluster/k8s-cluster.yml"
+  }
+}
+
+resource "yandex_lb_network_load_balancer" "controllers-lb" {
+  name = "controllers-lb"
+
+  listener {
+    name = "controllers-lb-listener"
+    port = 6443
+    external_address_spec {
+      address = yandex_vpc_address.lb_addr.external_ipv4_address[0].address
+      ip_version = "ipv4"
+    }
+  }
+
+  attached_target_group {
+    target_group_id = yandex_compute_instance_group.control-plane.load_balancer.0.target_group_id
+
+    healthcheck {
+      name = "tcp"
+      tcp_options {
+        port = 6443
+      }
+    }
   }
 }
