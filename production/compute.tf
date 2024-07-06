@@ -33,6 +33,18 @@ resource "yandex_compute_instance" "bastion" {
   metadata = {
     user-data = data.template_file.web_cloudinit.rendered
   }
+
+  provisioner "remote-exec" {
+    inline = [
+      "hostname",
+    ]
+    connection {
+      type     = "ssh"
+      user     = var.admin
+      private_key = file(var.ssh_private_key)
+      host = self.network_interface[0].nat_ip_address
+    }
+  }
 }
 
 resource "yandex_compute_instance_group" "control-plane" {
@@ -100,13 +112,14 @@ resource "yandex_compute_instance_group" "control-plane" {
 
   provisioner "remote-exec" {
     inline = [
-      "while ! nc -z ${self.instances.2.network_interface.0.ip_address}   22; do sleep   5; done",
+      "hostname",
     ]
     connection {
       type     = "ssh"
       user     = var.admin
       private_key = file(var.ssh_private_key)
-      host = yandex_compute_instance.bastion.network_interface[0].nat_ip_address
+      host = self.instances[0].network_interface[0].ip_address
+      bastion_host = yandex_compute_instance.bastion.network_interface[0].nat_ip_address
     }
   }
 }
@@ -168,13 +181,14 @@ resource "yandex_compute_instance_group" "worker" {
 
   provisioner "remote-exec" {
     inline = [
-      "while ! nc -z ${self.instances.2.network_interface.0.ip_address}   22; do sleep   5; done",
+      "hostname",
     ]
     connection {
       type     = "ssh"
       user     = var.admin
       private_key = file(var.ssh_private_key)
-      host = yandex_compute_instance.bastion.network_interface[0].nat_ip_address
+      host = self.instances[0].network_interface[0].ip_address
+      bastion_host = yandex_compute_instance.bastion.network_interface[0].nat_ip_address
     }
   }
 }

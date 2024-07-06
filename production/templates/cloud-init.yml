@@ -9,8 +9,6 @@ users:
 package_update: false
 package_upgrade: false
 packages: ${packages}
-autoinstall:
-  updates: security
 bootcmd:
   - sudo apt-get remove unattended-upgrades
   - sudo systemctl stop apt-daily.timer

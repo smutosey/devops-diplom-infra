@@ -8,7 +8,7 @@ vpc_params = {
     public = { zone = "ru-central1-b", cidr = "192.168.0.0/24" },
     k8s-a  = { zone = "ru-central1-a", cidr = "10.0.1.0/24", route_nat = true },
     k8s-b  = { zone = "ru-central1-b", cidr = "10.0.2.0/24", route_nat = true },
-    k8s-c  = { zone = "ru-central1-d", cidr = "10.0.3.0/24", route_nat = true },
+    k8s-d  = { zone = "ru-central1-d", cidr = "10.0.3.0/24", route_nat = true },
   }
 }
 
