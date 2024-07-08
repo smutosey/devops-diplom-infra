@@ -44,6 +44,13 @@ resource "yandex_vpc_security_group" "k8s_sg" {
   }
 
   ingress {
+    protocol          = "TCP"
+    description       = "SSH connection from other cluster hosts"
+    predefined_target = "self_security_group"
+    port              = 22
+  }
+
+  ingress {
     protocol          = "ICMP"
     description       = "ICMP from Jump VM"
     security_group_id = yandex_vpc_security_group.bastion_sg.id
@@ -56,30 +63,25 @@ resource "yandex_vpc_security_group" "k8s_sg" {
   }
 
   ingress {
-    protocol          = "TCP"
-    description       = "SSH connection from other cluster hosts"
-    predefined_target = "self_security_group"
-    port              = 22
-  }
-
-  ingress {
     protocol          = "ANY"
     description       = "any traffic inside group"
     predefined_target = "self_security_group"
   }
 
-  ingress {
-    protocol       = "TCP"
-    description    = "nginx"
-    v4_cidr_blocks = ["0.0.0.0/0"]
-    port           = 80
-  }
-  ingress {
-    protocol       = "TCP"
-    description    = "k8snginx"
-    v4_cidr_blocks = ["0.0.0.0/0"]
-    port           = 8081
-  }
+  #   ingress {
+  #     protocol       = "TCP"
+  #     description    = "nginx"
+  #     v4_cidr_blocks = ["0.0.0.0/0"]
+  #     port           = 80
+  #   }
+
+  #   ingress {
+  #     protocol       = "TCP"
+  #     description    = "k8snginx"
+  #     v4_cidr_blocks = ["0.0.0.0/0"]
+  #     port           = 8081
+  #   }
+
   ingress {
     protocol       = "TCP"
     description    = "kubeapi"
@@ -93,9 +95,9 @@ resource "yandex_vpc_security_group" "k8s_sg" {
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress {
-    protocol       = "ANY"
-    description    = "outbound traffic"
-    v4_cidr_blocks = ["0.0.0.0/0"]
-  }
+  #   ingress {
+  #     protocol       = "ANY"
+  #     description    = "outbound traffic"
+  #     v4_cidr_blocks = ["0.0.0.0/0"]
+  #   }
 }

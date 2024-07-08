@@ -37,10 +37,6 @@ resource "yandex_vpc_address" "lb_addr" {
   external_ipv4_address {
     zone_id = yandex_vpc_subnet.k8s_subnets["public"].zone
   }
-
-#   provisioner "local-exec" {
-#     command = "sed -i -e '/supplementary_addresses_in_ssl_keys: / s/: .*/: [${self.external_ipv4_address[0].address}]/' ./ansible/group_vars/k8s_cluster/k8s-cluster.yml"
-#   }
 }
 
 resource "yandex_lb_network_load_balancer" "controllers-lb" {
