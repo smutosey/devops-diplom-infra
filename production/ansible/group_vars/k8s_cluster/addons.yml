@@ -98,8 +98,8 @@ rbd_provisioner_enabled: false
 
 # Nginx ingress controller deployment
 ingress_nginx_enabled: true
-# ingress_nginx_host_network: false
-# ingress_nginx_service_type: LoadBalancer
+ingress_nginx_host_network: true
+ingress_nginx_service_type: LoadBalancer
 ingress_publish_status_address: ""
 # ingress_nginx_nodeselector:
 #   kubernetes.io/os: "linux"
@@ -108,9 +108,9 @@ ingress_publish_status_address: ""
 #     operator: "Equal"
 #     value: ""
 #     effect: "NoSchedule"
-# ingress_nginx_namespace: "ingress-nginx"
-# ingress_nginx_insecure_port: 80
-# ingress_nginx_secure_port: 443
+ingress_nginx_namespace: "ingress"
+ingress_nginx_insecure_port: 80
+ingress_nginx_secure_port: 443
 # ingress_nginx_configmap:
 #   map-hash-bucket-size: "128"
 #   ssl-protocols: "TLSv1.2 TLSv1.3"
