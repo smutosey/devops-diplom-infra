@@ -32,7 +32,7 @@ logLevel: ""
 github:
   user: smutosey
   token: atlantis
-  secret:
+  secret: secret
 #   hostname: github.your.org
 
 # -- If using a GitHub App, please enter your values as follows.
@@ -276,10 +276,9 @@ readinessProbe:
   scheme: HTTP
 
 service:
-  type: NodePort
+  type: ClusterIP
   annotations: {}
   port: 80
-  nodePort: null
   targetPort: 4141
   loadBalancerIP: null
   loadBalancerSourceRanges: []

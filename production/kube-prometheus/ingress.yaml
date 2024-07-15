@@ -1,0 +1,39 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: monitoring-ingress
+  namespace: monitoring
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    app.kubernetes.io/component: moinitoring-ingress
+    app.kubernetes.io/instance: main
+    app.kubernetes.io/name: moinitoring-ingress
+    app.kubernetes.io/part-of: kube-prometheus
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /alertmanager
+        pathType: Prefix
+        backend:
+          service:
+            name: alertmanager-main
+            port:
+              name: web
+      - path: /grafana
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana
+            port:
+              name: http
+      - path: /prometheus
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-k8s
+            port:
+              name: web
+
+

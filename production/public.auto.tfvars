@@ -1,6 +1,6 @@
 default_zone = "ru-central1-a"
 admin        = "nedorezov"
-vm_packages  = ["vim"]
+vm_packages  = ["vim", "net-tools"]
 
 vpc_params = {
   name = "k8s-vpc"
