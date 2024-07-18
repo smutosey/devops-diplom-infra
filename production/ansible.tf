@@ -35,10 +35,13 @@ resource "terraform_data" "atlantis-helm" {
 
   provisioner "local-exec" {
     environment = {
+      SDF = "ASd"
       GITHUB_SECRET = var.github_secret
       GITHUB_TOKEN  = var.github_token
+      BACKEND_KEY = var.access_key
+      BACKEND_SECRET = var.secret_key
     }
-    command = "helm install atlantis runatlantis/atlantis --set github.secret=$GITHUB_SECRET --set github.token=$GITHUB_TOKEN -f helm/atlantis.yaml --create-namespace -n atlantis"
+    command = "helm install atlantis runatlantis/atlantis --set github.secret=$GITHUB_SECRET --set github.token=$GITHUB_TOKEN --set environment.AWS_ACCESS_KEY_ID=$BACKEND_KEY --set environment.AWS_SECRET_ACCESS_KEY=$BACKEND_SECRET -f helm/atlantis.yaml --create-namespace -n atlantis"
   }
 }
 

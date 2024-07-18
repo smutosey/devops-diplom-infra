@@ -43,6 +43,14 @@ variable "vm_packages" {
   description = "Packages to install on vm creates"
 }
 
+variable "access_key" {
+  type        = string
+}
+variable "secret_key" {
+  type        = string
+}
+
+
 variable "vpc_params" {
   description = "Production VPC environment variables"
   type = object({

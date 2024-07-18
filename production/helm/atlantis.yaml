@@ -27,3 +27,22 @@ volumeClaim:
   # -- Storage class name (if possible, use a resizable one).
   storageClassName: "local-path"
   accessModes: ["ReadWriteOnce"]
+
+repoConfig: |
+  ---
+  repos:
+  - id: /.*/
+    apply_requirements: []
+    workflow: default
+    pre_workflow_hooks:
+      - run: cp .terraformrc ~/.terraformrc
+        description: Generating configs
+  workflows:
+    default:
+      plan:
+        steps: [init, plan]
+      apply:
+        steps: [apply]
+  metrics:
+    prometheus:
+      endpoint: /metrics
