@@ -25,7 +25,6 @@ resource "yandex_vpc_subnet" "k8s_subnets" {
 
 resource "yandex_vpc_address" "bastion_addr" {
   name = "BastionIP"
-
   external_ipv4_address {
     zone_id = yandex_vpc_subnet.k8s_subnets["public"].zone
   }
@@ -33,7 +32,13 @@ resource "yandex_vpc_address" "bastion_addr" {
 
 resource "yandex_vpc_address" "lb_addr" {
   name = "LoadbalancerIP"
+  external_ipv4_address {
+    zone_id = yandex_vpc_subnet.k8s_subnets["public"].zone
+  }
+}
 
+resource "yandex_vpc_address" "alb_addr" {
+  name = "ApplicationLoadbalancerIP"
   external_ipv4_address {
     zone_id = yandex_vpc_subnet.k8s_subnets["public"].zone
   }

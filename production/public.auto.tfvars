@@ -2,6 +2,13 @@ default_zone = "ru-central1-a"
 admin        = "nedorezov"
 vm_packages  = ["vim", "net-tools"]
 
+dns_params = {
+  domain         = "smutosey.ru"
+  subdomains     = ["app", "prometheus", "atlantis", "grafana", "alertmanager"]
+  certificate_id = "fpq5459639v9l9bu0msn"
+  dns_zone_id    = "dns4ml1blm6m5rnvumb2"
+}
+
 vpc_params = {
   name = "k8s-vpc"
   subnets = {

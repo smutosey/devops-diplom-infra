@@ -179,6 +179,11 @@ resource "yandex_compute_instance_group" "worker" {
     max_deleting    = var.instance_params["workers"].max_deleting
   }
 
+  application_load_balancer {
+    target_group_name        = "k8s-workers"
+    target_group_description = "Целевая группа ALB workers"
+  }
+
   provisioner "remote-exec" {
     inline = [
       "hostname",

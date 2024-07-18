@@ -36,6 +36,12 @@ resource "yandex_vpc_security_group" "k8s_sg" {
   description = "SG for hosts in k8s cluster"
   network_id  = yandex_vpc_network.k8s_vpc.id
 
+  egress {
+    protocol       = "ANY"
+    description    = "outbound traffic"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+
   ingress {
     protocol          = "TCP"
     description       = "SSH connection from Jump VM"
@@ -68,19 +74,12 @@ resource "yandex_vpc_security_group" "k8s_sg" {
     predefined_target = "self_security_group"
   }
 
-  #   ingress {
-  #     protocol       = "TCP"
-  #     description    = "nginx"
-  #     v4_cidr_blocks = ["0.0.0.0/0"]
-  #     port           = 80
-  #   }
-
-  #   ingress {
-  #     protocol       = "TCP"
-  #     description    = "k8snginx"
-  #     v4_cidr_blocks = ["0.0.0.0/0"]
-  #     port           = 8081
-  #   }
+  ingress {
+    protocol          = "TCP"
+    description       = "balancer"
+    security_group_id = yandex_vpc_security_group.alb_sg.id
+    port              = 80
+  }
 
   ingress {
     protocol       = "TCP"
@@ -88,16 +87,36 @@ resource "yandex_vpc_security_group" "k8s_sg" {
     v4_cidr_blocks = ["0.0.0.0/0"]
     port           = 6443
   }
+}
+
+resource "yandex_vpc_security_group" "alb_sg" {
+  name       = "k8s-alb"
+  network_id = yandex_vpc_network.k8s_vpc.id
 
   egress {
     protocol       = "ANY"
-    description    = "outbound traffic"
+    description    = "any"
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
 
-  #   ingress {
-  #     protocol       = "ANY"
-  #     description    = "outbound traffic"
-  #     v4_cidr_blocks = ["0.0.0.0/0"]
-  #   }
+  ingress {
+    protocol       = "TCP"
+    description    = "ext-http"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    port           = 80
+  }
+
+  ingress {
+    protocol       = "TCP"
+    description    = "ext-https"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    port           = 443
+  }
+
+  ingress {
+    protocol          = "TCP"
+    description       = "healthchecks"
+    predefined_target = "loadbalancer_healthchecks"
+    port              = 30080
+  }
 }

@@ -28,6 +28,16 @@ variable "ssh_private_key" {
   description = "Location of SSH private key."
 }
 
+variable "github_token" {
+  type        = string
+  description = "Atlantis GitHub token name"
+}
+
+variable "github_secret" {
+  type        = string
+  description = "Atlantis GitHub token secret"
+}
+
 variable "vm_packages" {
   type        = list(string)
   description = "Packages to install on vm creates"
@@ -42,6 +52,16 @@ variable "vpc_params" {
       cidr      = string
       route_nat = optional(bool)
     }))
+  })
+}
+
+variable "dns_params" {
+  description = "DNS variables"
+  type = object({
+    domain         = string
+    subdomains     = list(string)
+    certificate_id = string
+    dns_zone_id    = string
   })
 }
 
