@@ -11,7 +11,7 @@ data "template_file" "web_cloudinit" {
   template = file("./templates/cloud-init.yml")
   vars = {
     username       = var.admin
-    ssh_public_key = file(var.ssh_public_key)
+    ssh_public_key = base64decode(var.ssh_public_key_b64)
     packages       = jsonencode(var.vm_packages)
   }
 }

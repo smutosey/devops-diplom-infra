@@ -18,30 +18,47 @@ variable "admin" {
   type        = string
 }
 
-variable "ssh_public_key" {
+variable "ssh_public_key_b64" {
   type        = string
-  description = "Location of SSH public key."
+  description = "SSH public key base64 encoded"
 }
 
-variable "ssh_private_key" {
+variable "ssh_private_key_b64" {
   type        = string
-  description = "Location of SSH private key."
+  description = "SSH private key base64 encoded"
+}
+
+variable "sa_key_b64" {
+  type        = string
+  description = "SA json key base64 encoded"
 }
 
 variable "github_token" {
   type        = string
   description = "Atlantis GitHub token name"
+  default = ""
 }
 
 variable "github_secret" {
   type        = string
   description = "Atlantis GitHub token secret"
+  default = ""
 }
 
 variable "vm_packages" {
   type        = list(string)
   description = "Packages to install on vm creates"
 }
+
+variable "access_key" {
+  type        = string
+  default = ""
+}
+variable "secret_key" {
+  type        = string
+  default = ""
+}
+
 
 variable "vpc_params" {
   description = "Production VPC environment variables"

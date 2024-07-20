@@ -41,7 +41,7 @@ resource "yandex_compute_instance" "bastion" {
     connection {
       type     = "ssh"
       user     = var.admin
-      private_key = file(var.ssh_private_key)
+      private_key = base64decode(var.ssh_private_key_b64)
       host = self.network_interface[0].nat_ip_address
     }
   }
@@ -117,7 +117,7 @@ resource "yandex_compute_instance_group" "control-plane" {
     connection {
       type     = "ssh"
       user     = var.admin
-      private_key = file(var.ssh_private_key)
+      private_key = base64decode(var.ssh_private_key_b64)
       host = self.instances[0].network_interface[0].ip_address
       bastion_host = yandex_compute_instance.bastion.network_interface[0].nat_ip_address
     }
@@ -191,7 +191,7 @@ resource "yandex_compute_instance_group" "worker" {
     connection {
       type     = "ssh"
       user     = var.admin
-      private_key = file(var.ssh_private_key)
+      private_key = base64decode(var.ssh_private_key_b64)
       host = self.instances[0].network_interface[0].ip_address
       bastion_host = yandex_compute_instance.bastion.network_interface[0].nat_ip_address
     }
