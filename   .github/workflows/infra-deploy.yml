@@ -1,0 +1,60 @@
+name: Netology Infra Deploy
+run-name: Infra Apply by ${{ github.actor }} 🚀
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+jobs:
+  terraform plan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: List files in the repo
+        run: |
+          ls ${{ github.workspace }}
+      - name: Terraform Install
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform Plan
+        id: plan
+        working-directory: ./production
+        run: |
+          terraform init && terraform plan -out=plan.out && terraform show -json plan.out > plan.out.json
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
+          TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
+          TF_VAR_ssh_public_key_b64: ${{ secrets.SSH_PUBLIC_KEY_BASE64 }}
+          TF_VAR_ssh_private_key_b64: ${{ secrets.SSH_PRIVATE_KEY_BASE64 }}
+          TF_VAR_sa_key_b64: ${{ secrets.TERRAFORM_SA_KEY_BASE64 }}
+#       - uses: azure/setup-helm@v4.2.0
+#         id: install
+#       - uses: licenseware/helm@v1
+#         with:
+#           kubeconfig: ${{ secrets.KUBECONFIG_FILE }} # JSON/YAML encoded string
+#           kubeconfig-filepath: /tmp/kubeconfig # mutually exclusive with `kubeconfig`
+#           action: upgrade -i # upgrade -i, install, uninstall, etc.
+#           atomic: "1"
+#           build-dependencies: "0" # helm dep build
+#           chart-dir: ./helm
+#           chmod-kubeconfig: "1" # `chmod 600 kubeconfig-filepath`
+#           cleanup: "1" # delete all the files i.e. kubeconfig & values
+#           cleanup-on-fail: "1" # delete newly created resources on failure
+#           create-namespace: "0"
+#           helm-version: "v3.10.1" # https://github.com/helm/helm/releases
+#           namespace: default
+#           release-name: ${{ github.event.repository.name }}
+#           reuse-values: "0" # possible values: [0, 1] default: 0
+#           timeout: 10m
+#           update-dependencies: "1" # helm dep update
+#           values: image.tag=${{ github.sha }} # comma separated key=value pairs
+#           values-string: key1=value1,key2=value2 # comma separated key=value pairs
+#           values-file: ${{ secrets.HELM_VALUES }} # JSON/YAML encoded string
+#           values-filepath: /tmp/values.yml
+#           wait: "1"
