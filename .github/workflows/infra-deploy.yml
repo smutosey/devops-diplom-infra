@@ -21,11 +21,15 @@ env:
   TF_VAR_ssh_private_key_b64: ${{ secrets.SSH_PRIVATE_KEY_BASE64 }}
   TF_VAR_sa_key_b64: ${{ secrets.TERRAFORM_SA_KEY_BASE64 }}
 jobs:
-  terraform-plan:
+  terraform-apply:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Install SSH keys
+          run: |
+            install -m 600 -D /dev/null ~/.ssh/id_rsa
+            echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 -decode > ~/.ssh/id_rsa
       - name: Terraform Install
         uses: hashicorp/setup-terraform@v3
       - name: Terraform Plan
