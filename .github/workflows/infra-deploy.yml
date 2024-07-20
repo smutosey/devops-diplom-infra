@@ -34,7 +34,7 @@ jobs:
           terraform init && terraform plan -out=plan.out && terraform show -json plan.out > plan.out.json
       - name: List files in the repo
         run: |
-          ls ${{ github.workspace }}
+          ls ${{ github.workspace }}/production
       - name: Terraform Apply
         run: |
           terraform apply --auto-approve plan.out.json
