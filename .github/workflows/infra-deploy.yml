@@ -26,15 +26,15 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      - name: List files in the repo
-        run: |
-          ls ${{ github.workspace }}
       - name: Terraform Install
         uses: hashicorp/setup-terraform@v3
       - name: Terraform Plan
         id: plan
         run: |
           terraform init && terraform plan -out=plan.out && terraform show -json plan.out > plan.out.json
+      - name: List files in the repo
+        run: |
+          ls ${{ github.workspace }}
       - name: Terraform Apply
         run: |
           terraform apply --auto-approve plan.out.json
