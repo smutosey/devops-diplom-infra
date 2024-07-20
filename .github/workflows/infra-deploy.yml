@@ -37,7 +37,7 @@ jobs:
           ls ${{ github.workspace }}/production
       - name: Terraform Apply
         run: |
-          terraform apply --auto-approve plan.out.json
+          terraform apply --auto-approve plan.out
 
 #       - uses: azure/setup-helm@v4.2.0
 #         id: install
