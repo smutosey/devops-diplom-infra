@@ -9,6 +9,17 @@ on:
 concurrency:
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
   cancel-in-progress: true
+defaults:
+  run:
+    working-directory: ./production
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
+  TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
+  TF_VAR_ssh_public_key_b64: ${{ secrets.SSH_PUBLIC_KEY_BASE64 }}
+  TF_VAR_ssh_private_key_b64: ${{ secrets.SSH_PRIVATE_KEY_BASE64 }}
+  TF_VAR_sa_key_b64: ${{ secrets.TERRAFORM_SA_KEY_BASE64 }}
 jobs:
   terraform-plan:
     runs-on: ubuntu-latest
@@ -22,18 +33,12 @@ jobs:
         uses: hashicorp/setup-terraform@v3
       - name: Terraform Plan
         id: plan
-        working-directory: ./production
         run: |
           terraform init && terraform plan -out=plan.out && terraform show -json plan.out > plan.out.json
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
-          TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
-          TF_VAR_ssh_public_key_b64: ${{ secrets.SSH_PUBLIC_KEY_BASE64 }}
-          TF_VAR_ssh_private_key_b64: ${{ secrets.SSH_PRIVATE_KEY_BASE64 }}
-          TF_VAR_sa_key_b64: ${{ secrets.TERRAFORM_SA_KEY_BASE64 }}
-      - run: docker info
+      - run: Terraform Apply
+        run: |
+          terraform apply --auto-approve plan.out.json
+
 #       - uses: azure/setup-helm@v4.2.0
 #         id: install
 #       - uses: licenseware/helm@v1
