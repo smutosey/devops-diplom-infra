@@ -60,14 +60,12 @@ jobs:
 #       volumes:
 #         - $(pwd)/ansible/:/kubespray/inventory/production/
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
       - name: Install SSH keys
         run: |
           install -m 600 -D /dev/null ~/.ssh/id_rsa
           echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_rsa
-      - name: Check out repository code
-        uses: actions/checkout@v4
-        with:
-            path: /infra
       - name: Download inventory
         uses: actions/download-artifact@v4
         with:
@@ -75,6 +73,7 @@ jobs:
           path: /kubespray/inventory/production/inventory.yml
       - name: Start Kubespray Install
         run: |
+          pwd && ls .
           cp /infra/production/ansible /kubespray/inventory/production/
           ansible-playbook cluster.yml -i /kubespray/inventory/production/inventory.yml --become --become-user=root -e '{\"supplementary_addresses_in_ssl_keys\":[$LB_ADDRESS]}'
           sed -i -e 's# https://.*# https://$LB_ADDRESS:6443#' /kubespray/inventory/production/artifacts/admin.conf
