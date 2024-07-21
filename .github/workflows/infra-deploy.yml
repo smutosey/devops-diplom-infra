@@ -29,38 +29,32 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+
       - name: Terraform Install
         id: tf-install
         uses: hashicorp/setup-terraform@v3
+
       - name: Terraform Plan
         id: tf-plan
         run: |
           terraform init && terraform plan -out=plan.out
+
       - name: Terraform Apply
         id: tf-apply
         run: |
           terraform apply --auto-approve plan.out
+
       - name: Terraform get lb address
         id: tf-get
         run: |
           echo "lb_addr=$(terraform show -json | jq '.values.root_module.resources[] | select(.address=="yandex_vpc_address.lb_addr") | .values.external_ipv4_address[0] | .address')" >> "$GITHUB_OUTPUT"
-      - name: Check
-        run: |
-          echo "pwd -----------"
-          pwd
-          echo "ls .--------------"
-          ls .
-          echo "ls ./ansible--------------"
-          ls ./ansible
-          echo "ls ../../--------------"
-          ls ../../
-          echo "ls workspace--------------"
-          ls ${{ github.workspace }}
+
       - name: Upload inventory
         uses: actions/upload-artifact@v4
         with:
           name: inventory
           path: ${{ github.workspace }}/production/ansible/inventory.yml
+
   kubespray:
     runs-on: ubuntu-latest
     needs: terraform
@@ -71,61 +65,28 @@ jobs:
         ANSIBLE_FORCE_COLOR: 1
         LB_ADDRESS: ${{ needs.terraform.outputs.lb_addr }}
     steps:
+
       - name: Check out repository code
         uses: actions/checkout@v4
+
       - name: Install SSH keys
         run: |
           install -m 600 -D /dev/null ~/.ssh/id_rsa
           echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_rsa
+
       - name: Download inventory
         uses: actions/download-artifact@v4
         with:
           name: inventory
           path: ${{ env.PRODUCTION_DIR }}
+
       - name: Start Kubespray Install
         run: |
           cp -r ./ansible/ ${{ env.PRODUCTION_DIR }}
           echo "ls .--------------"
-          ls ./ansible/
-          echo "ls .--------------"
           cat ${{ env.PRODUCTION_DIR }}/inventory.yml
-      - name: Start Kubespray Install
-        run: |
-          echo "ls .--------------"
-          ls ./ansible/
+          echo "run--------------"
           ansible-playbook /kubespray/cluster.yml -i ${{ env.PRODUCTION_DIR }}/inventory.yml --become --become-user=root -e '{\"supplementary_addresses_in_ssl_keys\":[$LB_ADDRESS]}'
           sed -i -e 's# https://.*# https://$LB_ADDRESS:6443#' ${{ env.PRODUCTION_DIR }}/artifacts/admin.conf
 
 
-
-
-# scp $USERNAME@$IP_CONTROLLER_0:/etc/kubernetes/admin.conf kubespray-do.conf
-# ssh -F ssh-bastion.conf centos@$CONTROLLER_IP "sudo chmod 644 /etc/kubernetes/admin.conf"
-# scp -F ssh-bastion.conf centos@$CONTROLLER_IP:/etc/kubernetes/admin.conf ~/.kube/config
-# sed -i "s^server:.*^server: https://$LB_HOST:6443^" ~/.kube/config
-
-#       - uses: azure/setup-helm@v4.2.0
-#         id: install
-#       - uses: licenseware/helm@v1
-#         with:
-#           kubeconfig: ${{ secrets.KUBECONFIG_FILE }} # JSON/YAML encoded string
-#           kubeconfig-filepath: /tmp/kubeconfig # mutually exclusive with `kubeconfig`
-#           action: upgrade -i # upgrade -i, install, uninstall, etc.
-#           atomic: "1"
-#           build-dependencies: "0" # helm dep build
-#           chart-dir: ./helm
-#           chmod-kubeconfig: "1" # `chmod 600 kubeconfig-filepath`
-#           cleanup: "1" # delete all the files i.e. kubeconfig & values
-#           cleanup-on-fail: "1" # delete newly created resources on failure
-#           create-namespace: "0"
-#           helm-version: "v3.10.1" # https://github.com/helm/helm/releases
-#           namespace: default
-#           release-name: ${{ github.event.repository.name }}
-#           reuse-values: "0" # possible values: [0, 1] default: 0
-#           timeout: 10m
-#           update-dependencies: "1" # helm dep update
-#           values: image.tag=${{ github.sha }} # comma separated key=value pairs
-#           values-string: key1=value1,key2=value2 # comma separated key=value pairs
-#           values-file: ${{ secrets.HELM_VALUES }} # JSON/YAML encoded string
-#           values-filepath: /tmp/values.yml
-#           wait: "1"
