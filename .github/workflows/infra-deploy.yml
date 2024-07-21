@@ -26,6 +26,9 @@ jobs:
     outputs:
       lb_addr: ${{ steps.tf-get.outputs.lb_addr }}
     steps:
+      - name: Check path
+        run: |
+          pwd && ls .  && ls ./ansible
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Terraform Install
