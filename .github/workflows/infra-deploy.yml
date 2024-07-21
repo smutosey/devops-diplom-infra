@@ -45,7 +45,10 @@ jobs:
           echo "lb_addr=$(terraform show -json | jq '.values.root_module.resources[] | select(.address=="yandex_vpc_address.lb_addr") | .values.external_ipv4_address[0] | .address')" >> "$GITHUB_OUTPUT"
       - name: Check
         run: |
-          pwd && ls . && ls ./ansible && ls ../
+          pwd
+          ls .
+          ls ./ansible
+          ls ../../
       - name: Upload inventory
         uses: actions/upload-artifact@v4
         with:
