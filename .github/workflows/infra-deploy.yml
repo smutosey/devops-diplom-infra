@@ -86,8 +86,10 @@ jobs:
           path: ${{ env.PRODUCTION_DIR }}
       - name: Start Kubespray Install
         run: |
-          cp -r ./ansible/ ${{ env.PRODUCTION_DIR }}/
+          cp -r ./ansible/ ${{ env.PRODUCTION_DIR }}
+          echo "ls .--------------"
           ls ./ansible/
+          echo "ls .--------------"
           cat ${{ env.PRODUCTION_DIR }}/inventory.yml
       - name: Start Kubespray Install
         run: |
