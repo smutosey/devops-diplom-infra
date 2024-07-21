@@ -79,16 +79,16 @@ jobs:
         run: |
           install -m 600 -D /dev/null ~/.ssh/id_rsa
           echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_rsa
-      - name: Start Kubespray Install
-        run: |
-          cp -r ./ansible/ ${{ env.PRODUCTION_DIR }}/
-          ls ./ansible/
-          cat ${{ env.PRODUCTION_DIR }}/inventory.yml
       - name: Download inventory
         uses: actions/download-artifact@v4
         with:
           name: inventory
           path: ${{ env.PRODUCTION_DIR }}
+      - name: Start Kubespray Install
+        run: |
+          cp -r ./ansible/ ${{ env.PRODUCTION_DIR }}/
+          ls ./ansible/
+          cat ${{ env.PRODUCTION_DIR }}/inventory.yml
       - name: Start Kubespray Install
         run: |
           echo "ls .--------------"
