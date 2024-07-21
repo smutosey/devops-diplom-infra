@@ -21,27 +21,55 @@ env:
   TF_VAR_ssh_private_key_b64: ${{ secrets.SSH_PRIVATE_KEY_BASE64 }}
   TF_VAR_sa_key_b64: ${{ secrets.TERRAFORM_SA_KEY_BASE64 }}
 jobs:
-  terraform-apply:
+  terraform:
     runs-on: ubuntu-latest
+    outputs:
+      lb_addr: ${{ steps.tf-get.outputs.lb_addr }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Terraform Install
+        id: tf-install
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform Plan
+        id: tf-plan
+        run: |
+          terraform init && terraform plan -out=plan.out
+      - name: Terraform Apply
+        id: tf-apply
+        run: |
+          terraform apply --auto-approve plan.out
+      - name: Terraform get lb address
+        id: tf-get
+        run: |
+          echo "lb_addr=$(terraform show -json | jq '.values.root_module.resources[] | select(.address=="yandex_vpc_address.lb_addr") | .values.external_ipv4_address[0] | .address')" >> "$GITHUB_OUTPUT"
+  kubespray:
+    runs-on: ubuntu-latest
+    needs: terraform
+    container:
+      image: quay.io/kubespray/kubespray:v2.25.0
+      env:
+        ANSIBLE_HOST_KEY_CHECKING: 0
+        ANSIBLE_FORCE_COLOR: 1
+        LB_ADDRESS: ${{ needs.terraform.outputs.lb_addr }}
+      volumes:
+        - $(pwd)/ansible/:/kubespray/inventory/production/
+      options: --cpus 1
+    steps:
       - name: Install SSH keys
         run: |
           install -m 600 -D /dev/null ~/.ssh/id_rsa
           echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_rsa
-      - name: Terraform Install
-        uses: hashicorp/setup-terraform@v3
-      - name: Terraform Plan
-        id: plan
+      - name: Start Kubespray Install
         run: |
-          terraform init && terraform plan -out=plan.out && terraform show -json plan.out > plan.out.json
-      - name: List files in the repo
-        run: |
-          ls ${{ github.workspace }}/production
-      - name: Terraform Apply
-        run: |
-          terraform apply --auto-approve plan.out
+          ansible-playbook cluster.yml -i /kubespray/inventory/production/inventory.yml --become --become-user=root -e '{\"supplementary_addresses_in_ssl_keys\":[$LB_ADDRESS]}'
+          sed -i -e 's# https://.*# https://$LB_ADDRESS:6443#' /kubespray/inventory/production/artifacts/admin.conf
+
+
+# scp $USERNAME@$IP_CONTROLLER_0:/etc/kubernetes/admin.conf kubespray-do.conf
+# ssh -F ssh-bastion.conf centos@$CONTROLLER_IP "sudo chmod 644 /etc/kubernetes/admin.conf"
+# scp -F ssh-bastion.conf centos@$CONTROLLER_IP:/etc/kubernetes/admin.conf ~/.kube/config
+# sed -i "s^server:.*^server: https://$LB_HOST:6443^" ~/.kube/config
 
 #       - uses: azure/setup-helm@v4.2.0
 #         id: install
