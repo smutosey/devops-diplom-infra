@@ -71,8 +71,10 @@ jobs:
 
       - name: Install SSH keys
         run: |
-          install -m 600 -D /dev/null ~/.ssh/id_rsa
-          echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_rsa
+#           install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_ed25519
+          echo "${{ secrets.SSH_PUBLIC_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_ed25519.pub
+          cat ~/.ssh/id_ed25519
 
       - name: Download inventory
         uses: actions/download-artifact@v4
@@ -82,6 +84,9 @@ jobs:
 
       - name: Start Kubespray Install
         run: |
+          cat ~/.ssh/id_ed25519.pub
+          echo "--------------"
+          cat ${{ env.PRODUCTION_DIR }}/inventory.yml
           cp -r ./ansible/ ${{ env.PRODUCTION_DIR }}
           cd /kubespray && ansible-playbook cluster.yml -i ${{ env.PRODUCTION_DIR }}/inventory.yml --become --become-user=root -e '{"supplementary_addresses_in_ssl_keys":[$LB_ADDRESS]}'
           sed -i -e 's# https://.*# https://$LB_ADDRESS:6443#' ${{ env.PRODUCTION_DIR }}/artifacts/admin.conf
