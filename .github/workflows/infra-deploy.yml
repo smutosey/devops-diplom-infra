@@ -22,7 +22,7 @@ env:
   TF_VAR_sa_key_b64: ${{ secrets.TERRAFORM_SA_KEY_BASE64 }}
   PRODUCTION_DIR: /kubespray/inventory/production
 jobs:
-  terraform:
+  infra:
     runs-on: ubuntu-latest
     outputs:
       lb_addr: ${{ steps.tf-get.outputs.lb_addr }}
@@ -55,15 +55,15 @@ jobs:
           name: inventory
           path: ${{ github.workspace }}/production/ansible/inventory.yml
 
-  kubespray:
+  k8s-cluster:
     runs-on: ubuntu-latest
-    needs: terraform
+    needs: infra
     container:
       image: quay.io/kubespray/kubespray:v2.25.0
       env:
         ANSIBLE_HOST_KEY_CHECKING: 0
         ANSIBLE_FORCE_COLOR: 1
-        LB_ADDRESS: ${{ needs.terraform.outputs.lb_addr }}
+        LB_ADDRESS: ${{ needs.infra.outputs.lb_addr }}
     steps:
 
       - name: Check out repository code
