@@ -84,6 +84,7 @@ jobs:
 
       - name: Start Kubespray Install
         run: |
+          ssh nedorezov@84.201.178.51
           ls -lha ./ansible/
           cp -r ./ansible/* ${{ env.PRODUCTION_DIR }}
           ls -lha ${{ env.PRODUCTION_DIR }}
