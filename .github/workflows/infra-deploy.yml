@@ -55,16 +55,16 @@ jobs:
           name: inventory
           path: ${{ github.workspace }}/production/ansible/inventory.yml
 
-      - name: test ssh
-        run: |
-          install -m 700 -d ~/.ssh
-          install -m 600 -D /dev/null ~/.ssh/id_ed25519
-          install -m 600 -D /dev/null ~/.ssh/id_ed25519.pub
-          echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_ed25519
-          echo "${{ secrets.SSH_PUBLIC_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_ed25519.pub
-          ssh-keyscan -H -t ed25519 -v 89.169.164.113 >> ~/.ssh/known_hosts
-          ls -lha ~/.ssh
-          ssh nedorezov@89.169.164.113-vvv -i ~/.ssh/id_ed25519
+#       - name: test ssh
+#         run: |
+#           install -m 700 -d ~/.ssh
+#           install -m 600 -D /dev/null ~/.ssh/id_ed25519
+#           install -m 600 -D /dev/null ~/.ssh/id_ed25519.pub
+#           echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_ed25519
+#           echo "${{ secrets.SSH_PUBLIC_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_ed25519.pub
+#           ssh-keyscan -H -t ed25519 -v 89.169.164.113 >> ~/.ssh/known_hosts
+#           ls -lha ~/.ssh
+#           ssh nedorezov@89.169.164.113-vvv -i ~/.ssh/id_ed25519
 
   k8s-cluster:
     runs-on: ubuntu-latest
@@ -86,8 +86,8 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 --decode > /root/.ssh/id_ed25519
           echo "${{ secrets.SSH_PUBLIC_KEY_BASE64 }}" | base64 --decode > /root/.ssh/id_ed25519.pub
           ssh-keyscan -H -t ed25519 89.169.164.113  -v >> /root/.ssh/known_hosts
-          ls -lha /root/.ssh/
-          cat /root/.ssh/id_ed25519 | tail -n 2
+#           ls -lha /root/.ssh/
+#           cat /root/.ssh/id_ed25519 | tail -n 2
 
       - name: Download inventory
         uses: actions/download-artifact@v4
@@ -97,9 +97,6 @@ jobs:
 
       - name: Start Kubespray Install
         run: |
-          cat /etc/ssh/ssh_config
-          ssh nedorezov@84.201.178.51 -vvv
-          ls -lha ./ansible/
           cp -r ./ansible/* ${{ env.PRODUCTION_DIR }}
           ls -lha ${{ env.PRODUCTION_DIR }}
           cd /kubespray && ANSIBLE_HOST_KEY_CHECKING=0 ansible-playbook cluster.yml -i ${{ env.PRODUCTION_DIR }}/inventory.yml --become --become-user=root -e '{"supplementary_addresses_in_ssl_keys":[$LB_ADDRESS]}' -vvv
