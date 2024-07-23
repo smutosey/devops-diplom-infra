@@ -74,6 +74,7 @@ jobs:
           install -m 600 -D /dev/null ~/.ssh/id_ed25519
           echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_ed25519
           echo "${{ secrets.SSH_PUBLIC_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_ed25519.pub
+          ssh-keyscan -H -t ed25519 84.201.178.51  -v >> ~/.ssh/known_hosts
           ls -lha ~/.ssh/
           cat ~/.ssh/id_ed25519 | tail -n 2
 
@@ -85,9 +86,7 @@ jobs:
 
       - name: Start Kubespray Install
         run: |
-          cat ~/.ssh/id_ed25519 | tail -n 2
-          cat ~/.ssh/id_ed25519.pub
-          ssh nedorezov@84.201.178.51
+          ssh nedorezov@84.201.178.51 -v
           ls -lha ./ansible/
           cp -r ./ansible/* ${{ env.PRODUCTION_DIR }}
           ls -lha ${{ env.PRODUCTION_DIR }}
