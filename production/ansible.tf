@@ -48,7 +48,7 @@ resource "local_file" "ansible_inventory" {
 #     }
 #     command = join(" ",
 #       [
-#         "helm install atlantis runatlantis/atlantis",
+#         "helm upgrade --install --atomic atlantis runatlantis/atlantis",
 #         "--set github.secret=$GITHUB_SECRET",
 #         "--set github.token=$GITHUB_TOKEN",
 #         "--set environment.AWS_ACCESS_KEY_ID=$BACKEND_KEY",
@@ -71,6 +71,6 @@ resource "local_file" "ansible_inventory" {
 #   depends_on       = [terraform_data.kubespray]
 #
 #   provisioner "local-exec" {
-#     command = "helm install kube-prom-stack prometheus-community/kube-prometheus-stack -f helm/kube-prom-stack.yaml --create-namespace -n monitoring"
+#     command = "helm upgrade --install --atomic kube-prom-stack prometheus-community/kube-prometheus-stack -f helm/kube-prom-stack.yaml --create-namespace -n monitoring"
 #   }
 # }
