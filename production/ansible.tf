@@ -65,6 +65,7 @@ resource "local_file" "ansible_inventory" {
 #   }
 # }
 #
+# ######### Отключено, т.к. деплоим теперь через github actions
 # resource "terraform_data" "monitoring-helm" {
 #   triggers_replace = local_file.ansible_inventory.content
 #   depends_on       = [terraform_data.kubespray]

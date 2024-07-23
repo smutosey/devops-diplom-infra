@@ -84,10 +84,9 @@ jobs:
 
       - name: Start Kubespray Install
         run: |
-          echo ${{ needs.infra.outputs.lb_addr }}
           cp -r ./ansible/* ${{ env.PRODUCTION_DIR }}
           ls -lha ${{ env.PRODUCTION_DIR }}
-          cd /kubespray && ANSIBLE_HOST_KEY_CHECKING=0 ansible-playbook cluster.yml -i ${{ env.PRODUCTION_DIR }}/inventory.yml --become --become-user=root -e '{"supplementary_addresses_in_ssl_keys":[${{ needs.infra.outputs.lb_addr }}]}'
+          cd /kubespray && ANSIBLE_HOST_KEY_CHECKING=0 ansible-playbook cluster.yml -i ${{ env.PRODUCTION_DIR }}/inventory.yml --become --become-user=root -e '{"supplementary_addresses_in_ssl_keys":["${{ needs.infra.outputs.lb_addr }}"]}'
           sed -i -e 's# https://.*# https://$LB_ADDRESS:6443#' ${{ env.PRODUCTION_DIR }}/artifacts/admin.conf
 
 
