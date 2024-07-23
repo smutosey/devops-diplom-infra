@@ -61,8 +61,9 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_ed25519
           echo "${{ secrets.SSH_PUBLIC_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_ed25519.pub
           ssh-keyscan -H -t ed25519 84.201.178.51  -v >> ~/.ssh/known_hosts
-          cat /etc/ssh/ssh_config
-          ssh nedorezov@84.201.178.51 -vvv
+          ls -lha ~/.ssh
+          cat /etc/selinux/config
+          ssh nedorezov@84.201.178.51:23 -vvv
 
   k8s-cluster:
     runs-on: ubuntu-latest
