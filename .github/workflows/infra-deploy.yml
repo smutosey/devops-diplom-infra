@@ -64,7 +64,7 @@ jobs:
           echo "${{ secrets.SSH_PUBLIC_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_ed25519.pub
           ssh-keyscan -H -t ed25519 -v 84.201.178.51 >> ~/.ssh/known_hosts
           ls -lha ~/.ssh
-          ssh nedorezov@84.201.178.51 -vvv
+          ssh nedorezov@84.201.178.51 -vvv -i ~/.ssh/id_ed25519
 
   k8s-cluster:
     runs-on: ubuntu-latest
