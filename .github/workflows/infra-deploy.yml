@@ -57,10 +57,12 @@ jobs:
 
       - name: test ssh
         run: |
+          install -m 600 -D /dev/null ~/.ssh
           install -m 600 -D /dev/null ~/.ssh/id_ed25519
+          install -m 600 -D /dev/null ~/.ssh/id_ed25519.pub
           echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_ed25519
           echo "${{ secrets.SSH_PUBLIC_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_ed25519.pub
-          ssh-keyscan -H -t ed25519 84.201.178.51  -v >> ~/.ssh/known_hosts
+          ssh-keyscan -H -t ed25519 84.201.178.51  -vvv >> ~/.ssh/known_hosts
           ls -lha ~/.ssh
           cat /etc/selinux/config
           ssh nedorezov@84.201.178.51:23 -vvv
