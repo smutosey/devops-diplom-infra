@@ -47,7 +47,7 @@ jobs:
       - name: Terraform get lb address
         id: tf-get
         run: |
-          echo "lb_addr=$(terraform show -json | jq '.values.root_module.resources[] | select(.address=="yandex_vpc_address.lb_addr") | .values.external_ipv4_address[0] | .address')" >> "$GITHUB_OUTPUT"
+          echo "lb_addr=$(terraform show -json | jq -r '.values.root_module.resources[] | select(.address=="yandex_vpc_address.lb_addr") | .values.external_ipv4_address[0] | .address')" >> "$GITHUB_OUTPUT"
 
       - name: Upload inventory
         uses: actions/upload-artifact@v4
@@ -90,7 +90,7 @@ jobs:
         id: kubespray
         run: |
           cp -r ./ansible/* ${{ env.PRODUCTION_DIR }}
-          cd /kubespray && ansible-playbook cluster.yml -i ${{ env.PRODUCTION_DIR }}/inventory.yml --become --become-user=root -e '{"supplementary_addresses_in_ssl_keys":[${{ needs.infra.outputs.lb_addr }}]}'
+          cd /kubespray && ansible-playbook cluster.yml -i ${{ env.PRODUCTION_DIR }}/inventory.yml --become --become-user=root -e '{"supplementary_addresses_in_ssl_keys":["${{ needs.infra.outputs.lb_addr }}"]}'
           echo "KUBECONFIG_BASE64=$(sed -e 's# https://.*# https://${{ needs.infra.outputs.lb_addr }}:6443#' ${{ env.PRODUCTION_DIR }}/artifacts/admin.conf | base64 -w0)" >> "$GITHUB_OUTPUT"
 
   helm:
@@ -104,7 +104,9 @@ jobs:
 
       - name: Get kubeconfig
         id: kubeconfig
-        run: echo ${{ needs.k8s-cluster.outputs.KUBECONFIG_BASE64 }} | base64 --decode > admin.conf
+        run: |
+          install -m 600 -D /dev/null admin.conf
+          echo ${{ needs.k8s-cluster.outputs.KUBECONFIG_BASE64 }} | base64 --decode > admin.conf
 
       - name: Install Helm
         id: helm
