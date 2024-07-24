@@ -114,9 +114,15 @@ jobs:
 
       - name: Deploy Atlantis
         id: atlantis
-        run: helm upgrade --install --atomic atlantis runatlantis/atlantis -f helm/atlantis.yaml --create-namespace -n atlantis --kubeconfig admin.conf
+        run: |
+          helm repo add runatlantis https://runatlantis.github.io/helm-charts
+          helm repo update
+          helm upgrade --install --atomic atlantis runatlantis/atlantis -f helm/atlantis.yaml --create-namespace -n atlantis --kubeconfig admin.conf
 
       - name: Deploy Monitoring Stack
         id: mon
-        run: helm upgrade --install --atomic kube-prom-stack prometheus-community/kube-prometheus-stack -f helm/kube-prom-stack.yaml --create-namespace -n monitoring --kubeconfig admin.conf
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          helm upgrade --install --atomic kube-prom-stack prometheus-community/kube-prometheus-stack -f helm/kube-prom-stack.yaml --create-namespace -n monitoring --kubeconfig admin.conf
 
