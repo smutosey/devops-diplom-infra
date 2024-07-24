@@ -65,7 +65,6 @@ jobs:
       env:
         ANSIBLE_HOST_KEY_CHECKING: 0
         ANSIBLE_FORCE_COLOR: 1
-        LB_ADDRESS: ${{ needs.infra.outputs.lb_addr }}
     steps:
 
       - name: Check out repository code
@@ -91,9 +90,8 @@ jobs:
         id: kubespray
         run: |
           cp -r ./ansible/* ${{ env.PRODUCTION_DIR }}
-          ls -lha ${{ env.PRODUCTION_DIR }}
-          cd /kubespray && ansible-playbook cluster.yml -i ${{ env.PRODUCTION_DIR }}/inventory.yml --become --become-user=root -e '{"supplementary_addresses_in_ssl_keys":["${{ env.LB_ADDRESS }}"]}'
-          echo "KUBECONFIG_BASE64=$(sed -e 's# https://.*# https://${{ env.LB_ADDRESS }}:6443#' ${{ env.PRODUCTION_DIR }}/artifacts/admin.conf | base64 -w0)" >> "$GITHUB_OUTPUT"
+          cd /kubespray && ansible-playbook cluster.yml -i ${{ env.PRODUCTION_DIR }}/inventory.yml --become --become-user=root -e '{"supplementary_addresses_in_ssl_keys":["${{ needs.infra.outputs.lb_addr }}"]}'
+          echo "KUBECONFIG_BASE64=$(sed -e 's# https://.*# https://${{ needs.infra.outputs.lb_addr }}:6443#' ${{ env.PRODUCTION_DIR }}/artifacts/admin.conf | base64 -w0)" >> "$GITHUB_OUTPUT"
 
   helm:
     runs-on: ubuntu-latest
