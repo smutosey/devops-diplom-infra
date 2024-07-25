@@ -14,6 +14,7 @@ sa_params = {
     "alb.editor",
     "certificate-manager.editor",
     "certificate-manager.certificates.downloader",
+    "container-registry.editor",
     "dns.editor",
   ]
   backend_config_path = "../production/backend-config.tfvars"
