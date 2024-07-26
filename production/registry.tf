@@ -3,8 +3,8 @@ resource yandex_container_registry "nedorezov-netology-apps" {
   name      = "nedorezov-netology-apps"
 }
 
-resource "yandex_container_repository" "smutosey-demo" {
-  name = "${yandex_container_registry.nedorezov-netology-apps.id}/smutosey-demo"
+resource "yandex_container_repository" "netology-demo" {
+  name = "${yandex_container_registry.nedorezov-netology-apps.id}/netology-demo"
 }
 
 resource "yandex_container_registry_iam_binding" "puller" {
