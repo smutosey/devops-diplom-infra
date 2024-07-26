@@ -3,6 +3,10 @@ resource yandex_container_registry "nedorezov-netology-apps" {
   name      = "nedorezov-netology-apps"
 }
 
+resource "yandex_container_repository" "smutosey-demo" {
+  name = "${yandex_container_registry.nedorezov-netology-apps}/smutosey-demo"
+}
+
 resource "yandex_container_registry_iam_binding" "puller" {
   registry_id = yandex_container_registry.nedorezov-netology-apps.id
   role        = "container-registry.images.puller"
