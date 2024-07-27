@@ -1,3 +1,4 @@
+# инициализация провайдера yandex и terraform remote state
 terraform {
   required_version = ">=0.13"
   required_providers {

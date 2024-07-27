@@ -1,3 +1,4 @@
+# Генерация файла inventory для запуска Kubespray
 resource "local_file" "ansible_inventory" {
   depends_on = [
     yandex_compute_instance_group.worker,

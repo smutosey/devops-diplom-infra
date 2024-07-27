@@ -1,4 +1,29 @@
-# Создание группы бэкендов
+# Создание Network Load Balancer для доступа к kube apiserver
+resource "yandex_lb_network_load_balancer" "controllers-lb" {
+  name = "controllers-lb"
+
+  listener {
+    name = "controllers-lb-listener"
+    port = 6443
+    external_address_spec {
+      address    = yandex_vpc_address.lb_addr.external_ipv4_address[0].address
+      ip_version = "ipv4"
+    }
+  }
+
+  attached_target_group {
+    target_group_id = yandex_compute_instance_group.control-plane.load_balancer.0.target_group_id
+
+    healthcheck {
+      name = "tcp"
+      tcp_options {
+        port = 6443 # apiserver port
+      }
+    }
+  }
+}
+
+# Создание группы бэкендов с healthcheck
 resource "yandex_alb_backend_group" "alb-bg" {
   name = "alb-bg"
 
@@ -37,22 +62,22 @@ resource "yandex_alb_virtual_host" "alb-host" {
     http_route {
       http_route_action {
         auto_host_rewrite = true
-        backend_group_id = yandex_alb_backend_group.alb-bg.id
-        timeout          = "60s"
+        backend_group_id  = yandex_alb_backend_group.alb-bg.id
+        timeout           = "60s"
       }
     }
   }
 }
 
-#Создание L7-балансировщика
+# Создание L7-балансировщика
 resource "yandex_alb_load_balancer" "alb" {
   name               = "alb"
   network_id         = yandex_vpc_network.k8s_vpc.id
   security_group_ids = [yandex_vpc_security_group.alb_sg.id]
 
   allocation_policy {
-    dynamic location {
-      for_each = {for subnet in yandex_vpc_subnet.k8s_subnets : subnet.zone => subnet.id if subnet.name != "public"}
+    dynamic "location" {
+      for_each = { for subnet in yandex_vpc_subnet.k8s_subnets : subnet.zone => subnet.id if subnet.name != "public" }
       content {
         zone_id   = location.key
         subnet_id = location.value
@@ -61,7 +86,7 @@ resource "yandex_alb_load_balancer" "alb" {
   }
 
   listener {
-    name = "list-http"
+    name = "redirect-http"
     endpoint {
       address {
         external_ipv4_address {
@@ -108,21 +133,21 @@ resource "yandex_alb_load_balancer" "alb" {
   }
 }
 
-# Сертификат TLS
+# Подтягиваем сертификат TLS
 data "yandex_cm_certificate" "k8s" {
   certificate_id = var.dns_params.certificate_id
 }
 
-# Создание ресурсной записи в DNS-зоне
+# Создание ресурсных записей в DNS-зоне по поддоменам
 data "yandex_dns_zone" "k8s-apps" {
   dns_zone_id = var.dns_params.dns_zone_id
 }
 
 resource "yandex_dns_recordset" "k8s-domains" {
   for_each = toset(var.dns_params.subdomains)
-  zone_id = data.yandex_dns_zone.k8s-apps.id
-  name    = each.value
-  ttl     = 600
-  type    = "A"
-  data    = [yandex_alb_load_balancer.alb.listener[0].endpoint[0].address[0].external_ipv4_address[0].address]
+  zone_id  = data.yandex_dns_zone.k8s-apps.id
+  name     = each.value
+  ttl      = 600
+  type     = "A"
+  data     = [yandex_alb_load_balancer.alb.listener[0].endpoint[0].address[0].external_ipv4_address[0].address]
 }

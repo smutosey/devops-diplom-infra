@@ -1,3 +1,4 @@
+# Создание NAT-инстанса, также выполняющего роль джампера
 resource "yandex_compute_instance" "bastion" {
   name                      = var.instance_params["bastion"].vm_name
   hostname                  = var.instance_params["bastion"].vm_name
@@ -31,24 +32,26 @@ resource "yandex_compute_instance" "bastion" {
   }
 
   metadata = {
-    user-data = data.template_file.web_cloudinit.rendered
+    user-data = data.template_file.cloudinit.rendered
   }
 
+  # проверка, что ВМ поднялась успешно
   provisioner "remote-exec" {
     inline = [
       "hostname",
     ]
     connection {
-      type     = "ssh"
-      user     = var.admin
+      type        = "ssh"
+      user        = var.admin
       private_key = base64decode(var.ssh_private_key_b64)
-      host = self.network_interface[0].nat_ip_address
+      host        = self.network_interface[0].nat_ip_address
     }
   }
 }
 
+# Создание control plane nodes для k8s-кластера
 resource "yandex_compute_instance_group" "control-plane" {
-  depends_on         = [
+  depends_on = [
     yandex_vpc_subnet.k8s_subnets,
     yandex_compute_instance.bastion
   ]
@@ -83,7 +86,7 @@ resource "yandex_compute_instance_group" "control-plane" {
     }
 
     metadata = {
-      user-data          = data.template_file.web_cloudinit.rendered
+      user-data          = data.template_file.cloudinit.rendered
       serial-port-enable = 1
     }
   }
@@ -110,20 +113,22 @@ resource "yandex_compute_instance_group" "control-plane" {
     target_group_description = "Целевая группа NLB Control plane"
   }
 
+  # проверка, что ВМ поднялись успешно
   provisioner "remote-exec" {
     inline = [
       "hostname",
     ]
     connection {
-      type     = "ssh"
-      user     = var.admin
-      private_key = base64decode(var.ssh_private_key_b64)
-      host = self.instances[0].network_interface[0].ip_address
+      type         = "ssh"
+      user         = var.admin
+      private_key  = base64decode(var.ssh_private_key_b64)
+      host         = self.instances[0].network_interface[0].ip_address
       bastion_host = yandex_compute_instance.bastion.network_interface[0].nat_ip_address
     }
   }
 }
 
+# Создание worker nodes для k8s-кластера
 resource "yandex_compute_instance_group" "worker" {
   depends_on         = [yandex_vpc_subnet.k8s_subnets]
   name               = var.instance_params["workers"].group_name
@@ -157,7 +162,7 @@ resource "yandex_compute_instance_group" "worker" {
     }
 
     metadata = {
-      user-data          = data.template_file.web_cloudinit.rendered
+      user-data          = data.template_file.cloudinit.rendered
       serial-port-enable = 1
     }
   }
@@ -184,15 +189,16 @@ resource "yandex_compute_instance_group" "worker" {
     target_group_description = "Целевая группа ALB workers"
   }
 
+  # проверка, что ВМ поднялись успешно
   provisioner "remote-exec" {
     inline = [
       "hostname",
     ]
     connection {
-      type     = "ssh"
-      user     = var.admin
-      private_key = base64decode(var.ssh_private_key_b64)
-      host = self.instances[0].network_interface[0].ip_address
+      type         = "ssh"
+      user         = var.admin
+      private_key  = base64decode(var.ssh_private_key_b64)
+      host         = self.instances[0].network_interface[0].ip_address
       bastion_host = yandex_compute_instance.bastion.network_interface[0].nat_ip_address
     }
   }

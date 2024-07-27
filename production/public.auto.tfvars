@@ -1,6 +1,7 @@
-default_zone = "ru-central1-a"
-admin        = "nedorezov"
-vm_packages  = ["vim", "net-tools"]
+default_zone    = "ru-central1-a"
+admin           = "nedorezov"
+service_account = "terraform-sa"
+vm_packages     = ["vim", "net-tools"]
 
 dns_params = {
   domain         = "smutosey.ru"
@@ -66,4 +67,9 @@ instance_params = {
     public_ip       = true
     preemptible     = false
   }
+}
+
+cr_params = {
+  registry_name   = "nedorezov-netology-apps"
+  repository_name = "netology-demo"
 }

@@ -1,3 +1,4 @@
+# Группа безопасности для NAT-инстанса/бастиона
 resource "yandex_vpc_security_group" "bastion_sg" {
   name        = "Bastion-SG"
   description = "Bastion connections"
@@ -12,14 +13,14 @@ resource "yandex_vpc_security_group" "bastion_sg" {
 
   ingress {
     protocol       = "TCP"
-    description    = "ext-http"
+    description    = "ext-http for connections"
     v4_cidr_blocks = ["0.0.0.0/0"]
     port           = 80
   }
 
   ingress {
     protocol       = "TCP"
-    description    = "ext-https"
+    description    = "ext-https for connections"
     v4_cidr_blocks = ["0.0.0.0/0"]
     port           = 443
   }
@@ -31,16 +32,11 @@ resource "yandex_vpc_security_group" "bastion_sg" {
   }
 }
 
+# Группа безопасности для нод кластера k8s
 resource "yandex_vpc_security_group" "k8s_sg" {
   name        = "K8s-SG"
   description = "SG for hosts in k8s cluster"
   network_id  = yandex_vpc_network.k8s_vpc.id
-
-  egress {
-    protocol       = "ANY"
-    description    = "outbound traffic"
-    v4_cidr_blocks = ["0.0.0.0/0"]
-  }
 
   ingress {
     protocol          = "TCP"
@@ -51,7 +47,7 @@ resource "yandex_vpc_security_group" "k8s_sg" {
 
   ingress {
     protocol          = "TCP"
-    description       = "SSH connection from other cluster hosts"
+    description       = "SSH connection from other internal cluster hosts"
     predefined_target = "self_security_group"
     port              = 22
   }
@@ -64,7 +60,7 @@ resource "yandex_vpc_security_group" "k8s_sg" {
 
   ingress {
     protocol          = "ICMP"
-    description       = "ICMP"
+    description       = "ICMP between nodes"
     predefined_target = "self_security_group"
   }
 
@@ -87,17 +83,18 @@ resource "yandex_vpc_security_group" "k8s_sg" {
     v4_cidr_blocks = ["0.0.0.0/0"]
     port           = 6443
   }
-}
-
-resource "yandex_vpc_security_group" "alb_sg" {
-  name       = "k8s-alb"
-  network_id = yandex_vpc_network.k8s_vpc.id
 
   egress {
     protocol       = "ANY"
-    description    = "any"
+    description    = "outbound traffic"
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+# Группа безопасности для application load balancer
+resource "yandex_vpc_security_group" "alb_sg" {
+  name       = "k8s-alb"
+  network_id = yandex_vpc_network.k8s_vpc.id
 
   ingress {
     protocol       = "TCP"
@@ -118,5 +115,11 @@ resource "yandex_vpc_security_group" "alb_sg" {
     description       = "healthchecks"
     predefined_target = "loadbalancer_healthchecks"
     port              = 30080
+  }
+
+  egress {
+    protocol       = "ANY"
+    description    = "any"
+    v4_cidr_blocks = ["0.0.0.0/0"]
   }
 }

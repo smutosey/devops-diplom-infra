@@ -1,3 +1,5 @@
+# Переменные для манифестов terraform
+# Значения в основном объявлены в public.auto.tfvars, остальные берем из секретов
 variable "cloud_id" {
   type        = string
   description = "https://cloud.yandex.ru/docs/resource-manager/operations/cloud/get-id"
@@ -15,6 +17,11 @@ variable "default_zone" {
 
 variable "admin" {
   description = "name of predefined user on VM"
+  type        = string
+}
+
+variable "service_account" {
+  description = "name of service account in YC folder for creating infra"
   type        = string
 }
 
@@ -36,13 +43,13 @@ variable "sa_key_b64" {
 variable "github_token" {
   type        = string
   description = "Atlantis GitHub token name"
-  default = ""
+  default     = ""
 }
 
 variable "github_secret" {
   type        = string
   description = "Atlantis GitHub token secret"
-  default = ""
+  default     = ""
 }
 
 variable "vm_packages" {
@@ -51,11 +58,11 @@ variable "vm_packages" {
 }
 
 variable "access_key" {
-  type        = string
+  type    = string
   default = ""
 }
 variable "secret_key" {
-  type        = string
+  type    = string
   default = ""
 }
 
@@ -103,4 +110,12 @@ variable "instance_params" {
     max_deleting    = optional(number)
     preemptible     = bool
   }))
+}
+
+variable "cr_params" {
+  description = "container registry params"
+  type = object({
+    registry_name   = string
+    repository_name = string
+  })
 }
